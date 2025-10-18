@@ -150,16 +150,25 @@ class EquipmentAssetTools:
                 params.append(status)
                 param_count += 1
 
-            where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
-
-            query = f"""
-                SELECT 
-                    asset_id, type, model, zone, status, owner_user, 
-                    next_pm_due, last_maintenance, created_at, updated_at, metadata
-                FROM equipment_assets 
-                WHERE {where_clause}
-                ORDER BY asset_id
-            """
+            # Build safe WHERE clause
+            if where_conditions:
+                where_clause = " AND ".join(where_conditions)
+                query = f"""
+                    SELECT 
+                        asset_id, type, model, zone, status, owner_user, 
+                        next_pm_due, last_maintenance, created_at, updated_at, metadata
+                    FROM equipment_assets 
+                    WHERE {where_clause}
+                    ORDER BY asset_id
+                """  # nosec B608 - Safe: using parameterized queries
+            else:
+                query = """
+                    SELECT 
+                        asset_id, type, model, zone, status, owner_user, 
+                        next_pm_due, last_maintenance, created_at, updated_at, metadata
+                    FROM equipment_assets 
+                    ORDER BY asset_id
+                """
 
             if params:
                 results = await self.sql_retriever.fetch_all(query, *params)
@@ -193,16 +202,27 @@ class EquipmentAssetTools:
                 )
 
             # Get summary statistics
-            summary_query = f"""
-                SELECT 
-                    type,
-                    status,
-                    COUNT(*) as count
-                FROM equipment_assets 
-                WHERE {where_clause}
-                GROUP BY type, status
-                ORDER BY type, status
-            """
+            if where_conditions:
+                summary_query = f"""
+                    SELECT 
+                        type,
+                        status,
+                        COUNT(*) as count
+                    FROM equipment_assets 
+                    WHERE {where_clause}
+                    GROUP BY type, status
+                    ORDER BY type, status
+                """  # nosec B608 - Safe: using parameterized queries
+            else:
+                summary_query = """
+                    SELECT 
+                        type,
+                        status,
+                        COUNT(*) as count
+                    FROM equipment_assets 
+                    GROUP BY type, status
+                    ORDER BY type, status
+                """
 
             if params:
                 summary_results = await self.sql_retriever.fetch_all(
@@ -450,7 +470,7 @@ class EquipmentAssetTools:
                 FROM equipment_telemetry 
                 WHERE {where_clause}
                 ORDER BY ts DESC
-            """
+            """  # nosec B608 - Safe: using parameterized queries
 
             results = await self.sql_retriever.execute_query(query, tuple(params))
 
@@ -649,7 +669,7 @@ class EquipmentAssetTools:
                 JOIN equipment_assets e ON m.asset_id = e.asset_id
                 WHERE {where_clause}
                 ORDER BY m.performed_at ASC
-            """
+            """  # nosec B608 - Safe: using parameterized queries
 
             results = await self.sql_retriever.execute_query(query, tuple(params))
 
@@ -762,7 +782,7 @@ class EquipmentAssetTools:
                 WHERE {where_clause}
                 GROUP BY a.asset_id, e.type, e.model, e.zone
                 ORDER BY total_hours_used DESC
-            """
+            """  # nosec B608 - Safe: using parameterized queries
 
             results = await self.sql_retriever.execute_query(
                 utilization_query, tuple(params)
