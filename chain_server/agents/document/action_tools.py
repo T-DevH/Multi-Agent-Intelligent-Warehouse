@@ -3,22 +3,17 @@ Document Action Tools for MCP Framework
 Implements document processing tools for the MCP-enabled Document Extraction Agent
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import uuid
 import os
-import time
 import json
 from pathlib import Path
 
 from chain_server.services.llm.nim_client import get_nim_client
 from chain_server.agents.document.models.document_models import (
-    DocumentUpload,
-    DocumentType,
     ProcessingStage,
-    ProcessingStatus,
     QualityDecision,
     RoutingAction,
 )
@@ -114,7 +109,8 @@ class DocumentActionTools:
                                 )
                             except ValueError:
                                 logger.warning(
-                                    f"Invalid datetime format for upload_time in {doc_id}"
+                                    f"Invalid datetime format for upload_time in "
+                                    f"{doc_id}"
                                 )
                         for stage in status_info.get("stages", []):
                             if stage.get("started_at") and isinstance(
@@ -229,7 +225,7 @@ class DocumentActionTools:
             }
 
             # Start document processing pipeline
-            processing_result = await self._start_document_processing(document_record)
+            await self._start_document_processing(document_record)
 
             return {
                 "success": True,
@@ -436,7 +432,7 @@ class DocumentActionTools:
             logger.info(f"Rejecting document: {document_id}")
 
             # In real implementation, this would update database and notify user
-            rejection_result = await self._reject_document(
+            await self._reject_document(
                 document_id, rejector_id, rejection_reason, suggestions or []
             )
 
