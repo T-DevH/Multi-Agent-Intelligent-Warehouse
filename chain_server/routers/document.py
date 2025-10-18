@@ -18,6 +18,7 @@ from fastapi.responses import JSONResponse
 import uuid
 from datetime import datetime
 import os
+import tempfile
 import asyncio
 
 from chain_server.agents.document.models.document_models import (
@@ -105,8 +106,7 @@ async def upload_document(
 
         # Create temporary file path
         document_id = str(uuid.uuid4())
-        temp_dir = "/tmp/document_uploads"
-        os.makedirs(temp_dir, exist_ok=True)
+        temp_dir = tempfile.mkdtemp(prefix="document_uploads_")
         temp_file_path = os.path.join(temp_dir, f"{document_id}_{file.filename}")
 
         # Save uploaded file

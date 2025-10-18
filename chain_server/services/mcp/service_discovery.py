@@ -349,7 +349,7 @@ class ServiceRegistry:
     def _generate_service_id(self, service_name: str, endpoint: str) -> str:
         """Generate unique service ID."""
         content = f"{service_name}:{endpoint}:{datetime.utcnow().timestamp()}"
-        return hashlib.md5(content.encode()).hexdigest()[:16]
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
 
     def _update_service_endpoints(self, service_info: ServiceInfo) -> None:
         """Update service endpoints mapping."""

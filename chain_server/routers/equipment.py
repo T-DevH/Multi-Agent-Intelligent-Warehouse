@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
 import logging
+import ast
 
 from chain_server.agents.inventory.equipment_agent import (
     get_equipment_agent,
@@ -154,7 +155,7 @@ async def get_all_equipment(
                         row["metadata"]
                         if isinstance(row["metadata"], dict)
                         else (
-                            eval(row["metadata"])
+                            ast.literal_eval(row["metadata"])
                             if row["metadata"] and row["metadata"] != "{}"
                             else {}
                         )
@@ -293,7 +294,7 @@ async def get_equipment_by_id(asset_id: str):
                 result["metadata"]
                 if isinstance(result["metadata"], dict)
                 else (
-                    eval(result["metadata"])
+                    ast.literal_eval(result["metadata"])
                     if result["metadata"] and result["metadata"] != "{}"
                     else {}
                 )
