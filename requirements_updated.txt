@@ -75,7 +75,7 @@ platformdirs==4.4.0
 prometheus_client==0.22.1
 propcache==0.3.2
 protobuf==6.32.0
-psutil==7.1.0
+psutil==7.1.1
 psycopg==3.2.9
 psycopg-binary==3.2.9
 py-serializable==2.1.0
