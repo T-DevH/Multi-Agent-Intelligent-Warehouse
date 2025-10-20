@@ -87,7 +87,7 @@ pyflakes==3.4.0
 Pygments==2.19.2
 PyJWT==2.10.1
 pymilvus==2.6.1
-pymodbus==3.8.6
+pymodbus==3.11.3
 PyMuPDF==1.26.4
 pyparsing==3.2.5
 python-dateutil==2.9.0.post0
