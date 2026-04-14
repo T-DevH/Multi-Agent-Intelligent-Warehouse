@@ -64,9 +64,8 @@ class LargeLLMJudge:
         # Use LLM_MODEL from .env (49B model on NVIDIA public cloud)
         self.model = os.getenv("LLM_MODEL", "nvidia/llama-3.3-nemotron-super-49b-v1.5")
         # Large LLM (49B) models need more time for complex evaluation prompts
-        # Default: 120 seconds (2 minutes), configurable via LLAMA_70B_TIMEOUT env var
-        # Note: Environment variable name kept as LLAMA_70B_TIMEOUT for backward compatibility
-        self.timeout = int(os.getenv("LLAMA_70B_TIMEOUT", "120"))
+        # Default: 120 seconds (2 minutes), configurable via LLAMA_49B_TIMEOUT env var
+        self.timeout = int(os.getenv("LLAMA_49B_TIMEOUT", "120"))
 
     async def initialize(self):
         """Initialize the Large LLM Judge."""
