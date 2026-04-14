@@ -35,8 +35,8 @@ We will integrate NVIDIA NIMs (NVIDIA Inference Microservices) as our primary AI
    - Optimized for production workloads
    - Enhanced performance with 131K context window
 
-2. **NVIDIA NIM Embeddings** - NV-EmbedQA-E5-v5
-   - 1024-dimensional embeddings for semantic search
+2. **NVIDIA NIM Embeddings** - Llama Nemotron Embed VL 1B v2
+   - 2048-dimensional embeddings for semantic search
    - Optimized for question-answering and retrieval
    - High-quality vector representations
 
@@ -52,8 +52,9 @@ We will integrate NVIDIA NIMs (NVIDIA Inference Microservices) as our primary AI
 │                 │    │  └───────────┘  │    │                 │
 │  ┌───────────┐  │    │  ┌───────────┐  │    │                 │
 │  │ Retrieval │──┼────┼──│Embeddings │  │    │                 │
-│  │  System   │  │    │  │(NV-EmbedQA)│  │    │                 │
-│  └───────────┘  │    │  └───────────┘  │    │                 │
+│  │  System   │  │    │  │(Nemotron  │  │    │                 │
+│  └───────────┘  │    │  │ Embed VL)│  │    │                 │
+│                 │    │  └───────────┘  │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -148,7 +149,7 @@ LLM_CONFIG = {
     "timeout": 30,
     "max_retries": 3,
     "retry_delay": 1.0,
-    "model": "llama-3.3-nemotron-super-49b-v1"
+    "model": "nvidia/llama-3.3-nemotron-super-49b-v1.5"
 }
 
 # Embeddings Service Configuration
@@ -158,7 +159,7 @@ EMBEDDINGS_CONFIG = {
     "timeout": 10,
     "max_retries": 3,
     "retry_delay": 0.5,
-    "model": "nv-embedqa-e5-v5"
+    "model": "nvidia/llama-nemotron-embed-vl-1b-v2"
 }
 ```
 
@@ -178,6 +179,6 @@ EMBEDDINGS_CONFIG = {
 
 - [NVIDIA NIMs Documentation](https://docs.nvidia.com/nim/)
 - [Llama 3.3 Nemotron Super 49B Model Card](https://huggingface.co/nvidia/Llama-3.3-Nemotron-Super-49B)
-- [NV-EmbedQA-E5-v5 Model Card](https://huggingface.co/nvidia/NV-EmbedQA-E5-v5)
+- [Llama Nemotron Embed VL 1B v2 Model Card](https://build.nvidia.com/nvidia/llama-nemotron-embed-vl-1b-v2/modelcard)
 - [NVIDIA AI Enterprise](https://www.nvidia.com/en-us/data-center/products/ai-enterprise/)
 - [Production AI Best Practices](https://docs.nvidia.com/nim/guides/production-deployment/)

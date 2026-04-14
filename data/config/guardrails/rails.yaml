@@ -4,7 +4,7 @@
 models:
   - type: main
     engine: nvidia_nim
-    model: nvidia/llama-3.3-nemotron-super-49b-v1
+    model: nvidia/llama-3.3-nemotron-super-49b-v1.5
     parameters:
       temperature: 0.1
       max_tokens: 1000
@@ -12,7 +12,7 @@ models:
 
   - type: embedding
     engine: nvidia_nim
-    model: nvidia/nv-embedqa-e5-v5
+    model: nvidia/llama-nemotron-embed-vl-1b-v2
 
 instructions:
   - type: general

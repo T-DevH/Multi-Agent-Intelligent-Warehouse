@@ -15,7 +15,7 @@
 # limitations under the License.
 
 """
-Quick test script to verify nvidia/nv-embedqa-e5-v5 embedding model is working.
+Quick test script to verify nvidia/llama-nemotron-embed-vl-1b-v2 embedding model is working.
 """
 
 import asyncio
@@ -30,7 +30,7 @@ sys.path.insert(0, str(project_root))
 @pytest.mark.asyncio
 async def test_embedding():
     """Test the embedding model."""
-    print("🧪 Testing NVIDIA Embedding Model: nvidia/nv-embedqa-e5-v5")
+    print("🧪 Testing NVIDIA Embedding Model: nvidia/llama-nemotron-embed-vl-1b-v2")
     print("=" * 60)
     
     try:
@@ -73,11 +73,12 @@ async def test_embedding():
         print(f"   Model used: {response.model}")
         print(f"   Usage: {response.usage}")
         
-        # Verify dimension (nv-embedqa-e5-v5 should be 1024)
-        if response.embeddings and len(response.embeddings[0]) == 1024:
-            print(f"\n✅ Embedding dimension correct (1024 for nv-embedqa-e5-v5)")
-        else:
-            print(f"\n⚠️  Unexpected embedding dimension: {len(response.embeddings[0]) if response.embeddings else 0}")
+        # Verify dimension (llama-nemotron-embed-vl-1b-v2 is 2048)
+        assert response.embeddings, "No embeddings returned"
+        assert len(response.embeddings[0]) == 2048, (
+            f"Expected embedding dimension 2048, got {len(response.embeddings[0])}"
+        )
+        print(f"\n✅ Embedding dimension correct (2048 for llama-nemotron-embed-vl-1b-v2)")
         
         # Test health check
         print(f"\n🏥 Running health check...")

@@ -4,12 +4,13 @@
 # =============================================================================
 # Frontend Build Stage
 # =============================================================================
-FROM node:20-alpine AS frontend-builder
+FROM node:20.19.0-alpine AS frontend-builder
 
 WORKDIR /app/src/ui/web
 
-# Copy package files
+# Copy package files (include .npmrc so npm ci matches lockfile; legacy-peer-deps)
 COPY src/ui/web/package*.json ./
+COPY src/ui/web/.npmrc ./
 
 # Install dependencies (including devDependencies for build)
 RUN npm ci
@@ -26,6 +27,8 @@ ARG BUILD_TIME=unknown
 ENV REACT_APP_VERSION=$VERSION
 ENV REACT_APP_GIT_SHA=$GIT_SHA
 ENV REACT_APP_BUILD_TIME=$BUILD_TIME
+# CI=true treats ESLint warnings as errors; lint runs in CI test job, not here
+ENV DISABLE_ESLINT_PLUGIN=true
 
 # Build the frontend
 RUN npm run build

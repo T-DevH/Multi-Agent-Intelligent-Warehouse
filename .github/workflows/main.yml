@@ -88,7 +88,7 @@ jobs:
 
           # Edit with test values
           echo "NVIDIA_API_KEY=${NVIDIA_API_KEY}" >> deploy/compose/.env
-          echo "LLM_NIM_URL=http://integrate.api.nvidia.com/v1" >> deploy/compose/.env
+          echo "LLM_NIM_URL=https://integrate.api.nvidia.com/v1" >> deploy/compose/.env
 
           echo "✅ .env file configured at deploy/compose/.env"
 
@@ -198,8 +198,15 @@ jobs:
           echo "Starting frontend..."
           cd src/ui/web
 
-          echo "Running npm install..."
-          npm install
+          # Fix EACCES when node_modules was created by root / a prior job
+          if command -v sudo >/dev/null 2>&1; then
+            sudo chown -R "$(id -u):$(id -g)" . || true
+          fi
+          rm -rf node_modules
+          npm cache clean --force
+
+          echo "Running npm ci (deterministic install from lockfile)..."
+          npm ci
 
           echo "Starting frontend dev server in background..."
           npm start &

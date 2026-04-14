@@ -33,11 +33,17 @@ logger = logging.getLogger(__name__)
 class EmbeddingService:
     """
     Embedding service for generating vector representations of text using NVIDIA NIM.
-    
-    Uses NV-EmbedQA-E5-v5 model for high-quality embeddings optimized for Q&A tasks.
+
+    Uses Llama Nemotron Embed VL 1B v2 model (2048-dim) for embeddings.
     """
-    
-    def __init__(self, model_name: str = "nvidia/nv-embedqa-e5-v5", dimension: int = 1024):
+
+    def __init__(
+        self,
+        model_name: str | None = None,
+        dimension: int | None = None,
+    ):
+        self.model_name = model_name or os.getenv("EMBEDDING_MODEL", "nvidia/llama-nemotron-embed-vl-1b-v2")
+        self.dimension = dimension if dimension is not None else int(os.getenv("EMBEDDING_DIMENSION", "2048"))
         self.model_name = model_name
         self.dimension = dimension
         self._initialized = False
@@ -191,6 +197,6 @@ async def get_embedding_service() -> EmbeddingService:
     """Get or create the global embedding service instance."""
     global _embedding_service
     if _embedding_service is None:
-        _embedding_service = EmbeddingService(model_name="nvidia/nv-embedqa-e5-v5", dimension=1024)
+        _embedding_service = EmbeddingService()
         await _embedding_service.initialize()
     return _embedding_service

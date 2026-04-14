@@ -76,7 +76,7 @@ This repository implements a production-grade Multi-Agent-Intelligent-Warehouse 
 - **NVIDIA NeMo Integration** - Complete document processing pipeline with OCR, structured data extraction, and vision models
 - **MCP Framework** - Model Context Protocol with dynamic tool discovery, execution, and adapter system
 - **Hybrid RAG Stack** - PostgreSQL/TimescaleDB + Milvus vector database with intelligent query routing (90%+ accuracy)
-- **Production-Grade Vector Search** - NV-EmbedQA-E5-v5 embeddings (1024-dim) with NVIDIA cuVS GPU acceleration (19x performance)
+- **Production-Grade Vector Search** - Llama Nemotron Embed VL 1B v2 embeddings (2048-dim) with NVIDIA cuVS GPU acceleration (19x performance)
 - **AI-Powered Demand Forecasting** - Multi-model ensemble (XGBoost, Random Forest, Gradient Boosting, Ridge, SVR) with NVIDIA RAPIDS GPU acceleration
 - **Real-Time Monitoring** - Equipment status, telemetry, Prometheus metrics, Grafana dashboards, and system health
 - **Enterprise Security** - JWT authentication + RBAC with 5 user roles, NeMo Guardrails for content safety, and comprehensive user management
@@ -133,7 +133,7 @@ The architecture consists of:
 
 ### Advanced Search & Retrieval
 - **Hybrid RAG Stack** - PostgreSQL/TimescaleDB + Milvus vector database
-- **Production-Grade Vector Search** - NV-EmbedQA-E5-v5 embeddings (1024-dim)
+- **Production-Grade Vector Search** - Llama Nemotron Embed VL 1B v2 embeddings (2048-dim)
 - **GPU-Accelerated Search** - NVIDIA cuVS-powered vector search (19x performance)
 - **Intelligent Query Routing** - Automatic SQL vs Vector vs Hybrid classification (90%+ accuracy)
 - **Evidence Scoring** - Multi-factor confidence assessment with clarifying questions
@@ -711,7 +711,7 @@ Contributions are welcome! Please see our contributing guidelines and code of co
 
 See [LICENSE](LICENSE) for license information.
 
-**Governing Terms:** The Blueprint scripts are governed by Apache License, Version 2.0, and enables use of separate open source and proprietary software governed by their respective licenses: [Llama-3.3-nemotron-super-49b-v1.5](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/llama-3.3-nemotron-super-49b-v1.5?version=1), [NVIDIA Retrieval QA Llama 3.2 1B Embedding v2](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo-microservices/containers/llama-3.2-nv-embedqa-1b-v2?version=1.6.1-rc0), [NeMo Retriever Extraction](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo-microservices/containers/nv-ingest?version=25.9.0), [NeMo Retriever Page Elements v3](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemoretriever-page-elements-v3?version=1.7), [NeMo Retriever OCR v1](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemoretriever-ocr-v1?version=1.2.1), [Nemotron Parse](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemotron-parse?version=1), [NVIDIA-Nemotron-Nano-12B-v2-VL](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemotron-nano-12b-v2-vl?version=1), [NeMo Guardrails](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo-microservices/containers/guardrails?version=25.12), and [RAPIDS cuML](https://github.com/rapidsai/cuml/blob/main/LICENSE).
+**Governing Terms:** The Blueprint scripts are governed by Apache License, Version 2.0, and enables use of separate open source and proprietary software governed by their respective licenses: [Llama-3.3-nemotron-super-49b-v1.5](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/llama-3.3-nemotron-super-49b-v1.5?version=1), [Llama Nemotron Embed VL 1B v2](https://build.nvidia.com/nvidia/llama-nemotron-embed-vl-1b-v2/modelcard), [NeMo Retriever Extraction](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo-microservices/containers/nv-ingest?version=25.9.0), [NeMo Retriever Page Elements v3](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemoretriever-page-elements-v3?version=1.7), [NeMo Retriever OCR v1](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemoretriever-ocr-v1?version=1.2.1), [Nemotron Parse](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemotron-parse?version=1), [NVIDIA-Nemotron-Nano-12B-v2-VL](https://catalog.ngc.nvidia.com/orgs/nim/teams/nvidia/containers/nemotron-nano-12b-v2-vl?version=1), [NeMo Guardrails](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo-microservices/containers/guardrails?version=25.12), and [RAPIDS cuML](https://github.com/rapidsai/cuml/blob/main/LICENSE).
 
 ---
 
