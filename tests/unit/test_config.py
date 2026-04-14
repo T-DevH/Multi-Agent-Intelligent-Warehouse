@@ -38,8 +38,12 @@ VERSION_ENDPOINT = f"{API_BASE_URL}/api/v1/version"
 
 # Timeout Configuration (in seconds)
 DEFAULT_TIMEOUT = int(os.getenv("TEST_TIMEOUT", "180"))  # 3 minutes for complex queries
-GUARDRAILS_TIMEOUT = int(os.getenv("GUARDRAILS_TIMEOUT", "60"))  # 1 minute for guardrails
-SIMPLE_QUERY_TIMEOUT = int(os.getenv("SIMPLE_QUERY_TIMEOUT", "30"))  # 30 seconds for simple queries
+GUARDRAILS_TIMEOUT = int(
+    os.getenv("GUARDRAILS_TIMEOUT", "60")
+)  # 1 minute for guardrails
+SIMPLE_QUERY_TIMEOUT = int(
+    os.getenv("SIMPLE_QUERY_TIMEOUT", "30")
+)  # 30 seconds for simple queries
 LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "120"))  # 2 minutes for LLM calls
 
 # Environment Variables
@@ -62,8 +66,3 @@ TEST_INVOICE_CANDIDATES = [
     str(TEST_DATA_DIR / TEST_INVOICE_FILE),
     str(TEST_DATA_DIR / "test_invoice.png"),
 ]
-
-
-
-
-

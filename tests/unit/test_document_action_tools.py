@@ -46,9 +46,16 @@ class TestDocumentActionToolsInitialization:
     def test_initialization_defaults(self):
         """Test that DocumentActionTools initializes with correct defaults."""
         tools = DocumentActionTools()
-        
+
         assert tools.nim_client is None
-        assert tools.supported_file_types == ["pdf", "png", "jpg", "jpeg", "tiff", "bmp"]
+        assert tools.supported_file_types == [
+            "pdf",
+            "png",
+            "jpg",
+            "jpeg",
+            "tiff",
+            "bmp",
+        ]
         assert tools.max_file_size == 50 * 1024 * 1024  # 50MB
         assert tools.document_statuses == {}
         assert tools.status_file == Path("document_statuses.json")
@@ -58,7 +65,7 @@ class TestDocumentActionToolsInitialization:
     def test_model_constants(self):
         """Test that model name constants are correctly defined."""
         tools = DocumentActionTools()
-        
+
         assert tools.MODEL_SMALL_LLM == "Llama Nemotron Nano VL 8B"
         assert tools.MODEL_LARGE_JUDGE == "Llama 3.3 Nemotron Super 49B"
         assert tools.MODEL_OCR == "NeMoRetriever-OCR-v1"
@@ -67,22 +74,32 @@ class TestDocumentActionToolsInitialization:
     async def test_initialize_success(self):
         """Test successful initialization with database service."""
         tools = DocumentActionTools()
-        
+
         mock_nim_client = AsyncMock()
         mock_db_service = AsyncMock()
-        
+
         # Create a mock module for src.api.services.document
         mock_document_module = MagicMock()
-        mock_document_module.get_document_db_service = AsyncMock(return_value=mock_db_service)
-        
+        mock_document_module.get_document_db_service = AsyncMock(
+            return_value=mock_db_service
+        )
+
         # Patch sys.modules to include the mock module
         import sys
-        with patch.dict(sys.modules, {"src.api.services.document": mock_document_module}), \
-             patch("src.api.agents.document.action_tools.get_nim_client", return_value=mock_nim_client), \
-             patch.object(tools, "_load_status_data"):
-            
+
+        with (
+            patch.dict(
+                sys.modules, {"src.api.services.document": mock_document_module}
+            ),
+            patch(
+                "src.api.agents.document.action_tools.get_nim_client",
+                return_value=mock_nim_client,
+            ),
+            patch.object(tools, "_load_status_data"),
+        ):
+
             await tools.initialize()
-            
+
             assert tools.nim_client == mock_nim_client
             assert tools.db_service == mock_db_service
             assert tools.use_database is True
@@ -91,21 +108,31 @@ class TestDocumentActionToolsInitialization:
     async def test_initialize_without_database_fallback(self):
         """Test initialization falls back to file-based storage when database is unavailable."""
         tools = DocumentActionTools()
-        
+
         mock_nim_client = AsyncMock()
-        
+
         # Create a mock module that raises an exception
         mock_document_module = MagicMock()
-        mock_document_module.get_document_db_service = AsyncMock(side_effect=Exception("DB unavailable"))
-        
+        mock_document_module.get_document_db_service = AsyncMock(
+            side_effect=Exception("DB unavailable")
+        )
+
         # Patch sys.modules to include the mock module
         import sys
-        with patch.dict(sys.modules, {"src.api.services.document": mock_document_module}), \
-             patch("src.api.agents.document.action_tools.get_nim_client", return_value=mock_nim_client), \
-             patch.object(tools, "_load_status_data"):
-            
+
+        with (
+            patch.dict(
+                sys.modules, {"src.api.services.document": mock_document_module}
+            ),
+            patch(
+                "src.api.agents.document.action_tools.get_nim_client",
+                return_value=mock_nim_client,
+            ),
+            patch.object(tools, "_load_status_data"),
+        ):
+
             await tools.initialize()
-            
+
             assert tools.nim_client == mock_nim_client
             assert tools.db_service is None
             assert tools.use_database is False
@@ -118,7 +145,7 @@ class TestDocumentActionToolsHelpers:
         """Test _get_value with dictionary input."""
         tools = DocumentActionTools()
         test_dict = {"key1": "value1", "key2": 42}
-        
+
         assert tools._get_value(test_dict, "key1") == "value1"
         assert tools._get_value(test_dict, "key2") == 42
         assert tools._get_value(test_dict, "key3") is None
@@ -127,12 +154,12 @@ class TestDocumentActionToolsHelpers:
     def test_get_value_from_object(self):
         """Test _get_value with object attributes."""
         tools = DocumentActionTools()
-        
+
         class TestObj:
             def __init__(self):
                 self.attr1 = "value1"
                 self.attr2 = 42
-        
+
         obj = TestObj()
         assert tools._get_value(obj, "attr1") == "value1"
         assert tools._get_value(obj, "attr2") == 42
@@ -142,10 +169,10 @@ class TestDocumentActionToolsHelpers:
     def test_get_value_fallback(self):
         """Test _get_value with object that has neither attribute nor get method."""
         tools = DocumentActionTools()
-        
+
         class TestObj:
             pass
-        
+
         obj = TestObj()
         assert tools._get_value(obj, "nonexistent") is None
         assert tools._get_value(obj, "nonexistent", "default") == "default"
@@ -153,10 +180,10 @@ class TestDocumentActionToolsHelpers:
     def test_create_error_response(self):
         """Test _create_error_response creates standardized error format."""
         tools = DocumentActionTools()
-        
+
         error = ValueError("Test error message")
         response = tools._create_error_response("test operation", error)
-        
+
         assert response["success"] is False
         assert response["error"] == "Test error message"
         assert response["message"] == "Failed to test operation"
@@ -166,11 +193,11 @@ class TestDocumentActionToolsHelpers:
         tools = DocumentActionTools()
         doc_id = "test-doc-123"
         doc_status = {"status": "processing", "progress": 50}
-        
+
         tools.document_statuses[doc_id] = doc_status
-        
+
         exists, status = tools._check_document_exists(doc_id)
-        
+
         assert exists is True
         assert status == doc_status
 
@@ -178,9 +205,9 @@ class TestDocumentActionToolsHelpers:
         """Test _check_document_exists when document doesn't exist."""
         tools = DocumentActionTools()
         doc_id = "nonexistent-doc"
-        
+
         exists, status = tools._check_document_exists(doc_id)
-        
+
         assert exists is False
         assert status is None
 
@@ -189,11 +216,13 @@ class TestDocumentActionToolsHelpers:
         tools = DocumentActionTools()
         doc_id = "test-doc-123"
         doc_status = {"status": "processing", "progress": 50}
-        
+
         tools.document_statuses[doc_id] = doc_status
-        
-        success, status, error = tools._get_document_status_or_error(doc_id, "test operation")
-        
+
+        success, status, error = tools._get_document_status_or_error(
+            doc_id, "test operation"
+        )
+
         assert success is True
         assert status == doc_status
         assert error is None
@@ -202,9 +231,11 @@ class TestDocumentActionToolsHelpers:
         """Test _get_document_status_or_error when document doesn't exist."""
         tools = DocumentActionTools()
         doc_id = "nonexistent-doc"
-        
-        success, status, error = tools._get_document_status_or_error(doc_id, "test operation")
-        
+
+        success, status, error = tools._get_document_status_or_error(
+            doc_id, "test operation"
+        )
+
         assert success is False
         assert status is None
         assert error is not None
@@ -218,17 +249,17 @@ class TestDocumentActionToolsTimeParsing:
     def test_parse_hours_range_valid(self):
         """Test _parse_hours_range with valid range format."""
         tools = DocumentActionTools()
-        
+
         result = tools._parse_hours_range("4-8 hours")
         assert result == 6 * 3600  # Average of 4 and 8 hours = 6 hours = 21600 seconds
-        
+
         result = tools._parse_hours_range("1-3 hours")
         assert result == 2 * 3600  # Average of 1 and 3 hours = 2 hours = 7200 seconds
 
     def test_parse_hours_range_invalid(self):
         """Test _parse_hours_range with invalid formats."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_hours_range("4 hours") is None  # No dash
         # "4-8" actually parses because it splits "8" by space (gets ["8"]), takes index 0
         # So it returns (4+8)/2 * 3600 = 21600, not None
@@ -240,7 +271,7 @@ class TestDocumentActionToolsTimeParsing:
     def test_parse_single_hours_valid(self):
         """Test _parse_single_hours with valid format."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_single_hours("4 hours") == 4 * 3600
         assert tools._parse_single_hours("1 hour") == 1 * 3600
         assert tools._parse_single_hours("10 hours") == 10 * 3600
@@ -248,14 +279,14 @@ class TestDocumentActionToolsTimeParsing:
     def test_parse_single_hours_invalid(self):
         """Test _parse_single_hours with invalid formats."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_single_hours("invalid") is None
         assert tools._parse_single_hours("") is None
 
     def test_parse_minutes_valid(self):
         """Test _parse_minutes with valid format."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_minutes("30 minutes") == 30 * 60
         assert tools._parse_minutes("1 minute") == 1 * 60
         assert tools._parse_minutes("45 minutes") == 45 * 60
@@ -263,49 +294,49 @@ class TestDocumentActionToolsTimeParsing:
     def test_parse_minutes_invalid(self):
         """Test _parse_minutes with invalid formats."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_minutes("invalid") is None
         assert tools._parse_minutes("") is None
 
     def test_parse_processing_time_hours_range(self):
         """Test _parse_processing_time with hours range."""
         tools = DocumentActionTools()
-        
+
         result = tools._parse_processing_time("4-8 hours")
         assert result == 6 * 3600  # Average of 4 and 8 hours
 
     def test_parse_processing_time_single_hours(self):
         """Test _parse_processing_time with single hours."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_processing_time("4 hours") == 4 * 3600
         assert tools._parse_processing_time("1 hour") == 1 * 3600
 
     def test_parse_processing_time_minutes(self):
         """Test _parse_processing_time with minutes."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_processing_time("30 minutes") == 30 * 60
         assert tools._parse_processing_time("45 minutes") == 45 * 60
 
     def test_parse_processing_time_integer(self):
         """Test _parse_processing_time with integer input."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_processing_time(3600) == 3600
         assert tools._parse_processing_time(7200) == 7200
 
     def test_parse_processing_time_empty(self):
         """Test _parse_processing_time with empty/None input."""
         tools = DocumentActionTools()
-        
+
         assert tools._parse_processing_time("") is None
         assert tools._parse_processing_time(None) is None
 
     def test_parse_processing_time_default_fallback(self):
         """Test _parse_processing_time falls back to default when format is unrecognized."""
         tools = DocumentActionTools()
-        
+
         result = tools._parse_processing_time("unknown format")
         assert result == 3600  # Default 1 hour
 
@@ -316,33 +347,35 @@ class TestDocumentActionToolsQualityExtraction:
     def test_extract_quality_from_dict_value_dict(self):
         """Test _extract_quality_from_dict_value with dict input."""
         tools = DocumentActionTools()
-        
+
         assert tools._extract_quality_from_dict_value({"overall_score": 0.85}) == 0.85
         assert tools._extract_quality_from_dict_value({"quality_score": 0.75}) == 0.75
-        assert tools._extract_quality_from_dict_value({"other_key": 0.5}) == 0.0  # No score keys
+        assert (
+            tools._extract_quality_from_dict_value({"other_key": 0.5}) == 0.0
+        )  # No score keys
 
     def test_extract_quality_from_dict_value_object(self):
         """Test _extract_quality_from_dict_value with object input."""
         tools = DocumentActionTools()
-        
+
         class QualityObj:
             def __init__(self):
                 self.overall_score = 0.85
-        
+
         obj = QualityObj()
         assert tools._extract_quality_from_dict_value(obj) == 0.85
-        
+
         class QualityObj2:
             def __init__(self):
                 self.quality_score = 0.75
-        
+
         obj2 = QualityObj2()
         assert tools._extract_quality_from_dict_value(obj2) == 0.75
 
     def test_extract_quality_from_dict_value_numeric(self):
         """Test _extract_quality_from_dict_value with numeric input."""
         tools = DocumentActionTools()
-        
+
         assert tools._extract_quality_from_dict_value(0.85) == 0.85
         assert tools._extract_quality_from_dict_value(0.75) == 0.75
         assert tools._extract_quality_from_dict_value(0) == 0.0  # Zero returns 0.0
@@ -351,7 +384,7 @@ class TestDocumentActionToolsQualityExtraction:
     def test_extract_quality_from_dict_value_invalid(self):
         """Test _extract_quality_from_dict_value with invalid input."""
         tools = DocumentActionTools()
-        
+
         assert tools._extract_quality_from_dict_value("invalid") == 0.0
         assert tools._extract_quality_from_dict_value(None) == 0.0
         assert tools._extract_quality_from_dict_value([]) == 0.0
@@ -359,47 +392,64 @@ class TestDocumentActionToolsQualityExtraction:
     def test_extract_quality_score_from_validation_dict_direct_keys(self):
         """Test _extract_quality_score_from_validation_dict with direct score keys."""
         tools = DocumentActionTools()
-        
+
         validation = {"overall_score": 0.85}
-        assert tools._extract_quality_score_from_validation_dict(validation, "doc-1") == 0.85
-        
+        assert (
+            tools._extract_quality_score_from_validation_dict(validation, "doc-1")
+            == 0.85
+        )
+
         validation = {"quality_score": 0.75}
-        assert tools._extract_quality_score_from_validation_dict(validation, "doc-2") == 0.75
-        
+        assert (
+            tools._extract_quality_score_from_validation_dict(validation, "doc-2")
+            == 0.75
+        )
+
         validation = {"score": 0.65}
-        assert tools._extract_quality_score_from_validation_dict(validation, "doc-3") == 0.65
+        assert (
+            tools._extract_quality_score_from_validation_dict(validation, "doc-3")
+            == 0.65
+        )
 
     def test_extract_quality_score_from_validation_dict_nested(self):
         """Test _extract_quality_score_from_validation_dict with nested quality_score."""
         tools = DocumentActionTools()
-        
+
         validation = {"quality_score": {"overall_score": 0.85}}
-        assert tools._extract_quality_score_from_validation_dict(validation, "doc-1") == 0.85
+        assert (
+            tools._extract_quality_score_from_validation_dict(validation, "doc-1")
+            == 0.85
+        )
 
     def test_extract_quality_score_from_validation_dict_no_score(self):
         """Test _extract_quality_score_from_validation_dict when no score is present."""
         tools = DocumentActionTools()
-        
+
         validation = {"other_field": "value"}
-        assert tools._extract_quality_score_from_validation_dict(validation, "doc-1") == 0.0
+        assert (
+            tools._extract_quality_score_from_validation_dict(validation, "doc-1")
+            == 0.0
+        )
 
     def test_extract_quality_score_from_validation_object(self):
         """Test _extract_quality_score_from_validation_object with object input."""
         tools = DocumentActionTools()
-        
+
         class ValidationObj:
             def __init__(self):
                 self.overall_score = 0.85
-        
+
         obj = ValidationObj()
         assert tools._extract_quality_score_from_validation_object(obj, "doc-1") == 0.85
-        
+
         class ValidationObj2:
             def __init__(self):
                 self.quality_score = 0.75
-        
+
         obj2 = ValidationObj2()
-        assert tools._extract_quality_score_from_validation_object(obj2, "doc-2") == 0.75
+        assert (
+            tools._extract_quality_score_from_validation_object(obj2, "doc-2") == 0.75
+        )
 
 
 class TestDocumentActionToolsDateTimeParsing:
@@ -408,10 +458,10 @@ class TestDocumentActionToolsDateTimeParsing:
     def test_parse_datetime_field_valid(self):
         """Test _parse_datetime_field with valid ISO format."""
         tools = DocumentActionTools()
-        
+
         dt_str = "2025-01-15T10:30:00"
         result = tools._parse_datetime_field(dt_str, "upload_time", "doc-1")
-        
+
         assert result is not None
         assert isinstance(result, datetime)
         assert result.year == 2025
@@ -421,15 +471,19 @@ class TestDocumentActionToolsDateTimeParsing:
     def test_parse_datetime_field_invalid(self):
         """Test _parse_datetime_field with invalid format."""
         tools = DocumentActionTools()
-        
-        assert tools._parse_datetime_field("invalid-date", "upload_time", "doc-1") is None
+
+        assert (
+            tools._parse_datetime_field("invalid-date", "upload_time", "doc-1") is None
+        )
         assert tools._parse_datetime_field("", "upload_time", "doc-1") is None
-        assert tools._parse_datetime_field(123, "upload_time", "doc-1") is None  # Not a string
+        assert (
+            tools._parse_datetime_field(123, "upload_time", "doc-1") is None
+        )  # Not a string
 
     def test_restore_datetime_fields(self):
         """Test _restore_datetime_fields restores ISO strings to datetime objects."""
         tools = DocumentActionTools()
-        
+
         # _restore_datetime_fields only restores upload_time and started_at in stages
         status_info = {
             "upload_time": "2025-01-15T10:30:00",
@@ -437,25 +491,25 @@ class TestDocumentActionToolsDateTimeParsing:
                 {"name": "preprocessing", "started_at": "2025-01-15T10:35:00"},
             ],
         }
-        
+
         tools._restore_datetime_fields(status_info, "doc-1")
-        
+
         assert isinstance(status_info["upload_time"], datetime)
         assert isinstance(status_info["stages"][0]["started_at"], datetime)
 
     def test_restore_datetime_fields_skips_invalid(self):
         """Test _restore_datetime_fields skips invalid datetime strings."""
         tools = DocumentActionTools()
-        
+
         status_info = {
             "upload_time": "invalid-date",
             "stages": [
                 {"name": "preprocessing", "started_at": "2025-01-15T10:35:00"},
             ],
         }
-        
+
         tools._restore_datetime_fields(status_info, "doc-1")
-        
+
         # Invalid date should remain as string (not converted)
         assert status_info["upload_time"] == "invalid-date"
         assert isinstance(status_info["stages"][0]["started_at"], datetime)
@@ -467,9 +521,11 @@ class TestDocumentActionToolsStatusManagement:
     def test_create_empty_extraction_response(self):
         """Test _create_empty_extraction_response creates proper structure."""
         tools = DocumentActionTools()
-        
-        response = tools._create_empty_extraction_response("test_reason", "test message")
-        
+
+        response = tools._create_empty_extraction_response(
+            "test_reason", "test message"
+        )
+
         assert response["extraction_results"] == []
         assert response["confidence_scores"] == {}
         assert response["stages"] == []
@@ -482,14 +538,18 @@ class TestDocumentActionToolsStatusManagement:
     def test_create_mock_data_response(self):
         """Test _create_mock_data_response creates mock data with optional fields."""
         tools = DocumentActionTools()
-        
-        with patch.object(tools, "_get_mock_extraction_data", return_value={"test": "data"}):
+
+        with patch.object(
+            tools, "_get_mock_extraction_data", return_value={"test": "data"}
+        ):
             response = tools._create_mock_data_response()
-            
+
             assert response["is_mock"] is True
             assert response["test"] == "data"
-            
-            response_with_reason = tools._create_mock_data_response(reason="test_reason", message="test message")
+
+            response_with_reason = tools._create_mock_data_response(
+                reason="test_reason", message="test message"
+            )
             assert response_with_reason["reason"] == "test_reason"
             assert response_with_reason["message"] == "test message"
 
@@ -497,7 +557,7 @@ class TestDocumentActionToolsStatusManagement:
         """Test _load_status_data handles missing file gracefully."""
         tools = DocumentActionTools()
         tools.status_file = Path("/nonexistent/path/status.json")
-        
+
         # Should not raise exception
         tools._load_status_data()
         assert tools.document_statuses == {}
@@ -506,41 +566,43 @@ class TestDocumentActionToolsStatusManagement:
         """Test saving and loading status data from file."""
         pytest.importorskip("PIL", reason="PIL/Pillow not available")
         tools = DocumentActionTools()
-        
+
         # Use temporary file for testing
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".json"
+        ) as tmp_file:
             tmp_path = Path(tmp_file.name)
             tools.status_file = tmp_path
-            
+
             try:
                 # Add test data (without datetime fields to avoid serialization issues)
                 tools.document_statuses = {
                     "doc-1": {"status": "processing", "progress": 50},
                     "doc-2": {"status": "completed", "progress": 100},
                 }
-                
+
                 # Save data
                 tools._save_status_data()
-                
+
                 # Verify file was created
                 assert tmp_path.exists()
-                
+
                 # Verify file has content
-                with open(tmp_path, 'r') as f:
+                with open(tmp_path, "r") as f:
                     saved_data = json.load(f)
                     assert "doc-1" in saved_data
                     assert "doc-2" in saved_data
-                
+
                 # Clear and reload
                 tools.document_statuses = {}
                 tools._load_status_data()
-                
+
                 # Verify data was restored
                 assert "doc-1" in tools.document_statuses
                 assert "doc-2" in tools.document_statuses
                 assert tools.document_statuses["doc-1"]["status"] == "processing"
                 assert tools.document_statuses["doc-2"]["status"] == "completed"
-                
+
             finally:
                 # Cleanup
                 if tmp_path.exists():
@@ -549,9 +611,9 @@ class TestDocumentActionToolsStatusManagement:
     def test_calculate_time_threshold_today(self):
         """Test _calculate_time_threshold with 'today' range."""
         tools = DocumentActionTools()
-        
+
         result = tools._calculate_time_threshold("today")
-        
+
         assert isinstance(result, datetime)
         # Should be start of today
         now = datetime.now()
@@ -561,12 +623,13 @@ class TestDocumentActionToolsStatusManagement:
     def test_calculate_time_threshold_week(self):
         """Test _calculate_time_threshold with 'week' range."""
         tools = DocumentActionTools()
-        
+
         result = tools._calculate_time_threshold("week")
-        
+
         assert isinstance(result, datetime)
         # Should be approximately 7 days ago (allow small time difference)
         from datetime import timedelta
+
         now = datetime.now()
         week_ago = now - timedelta(days=7)
         # Allow 1 second difference for execution time
@@ -575,12 +638,13 @@ class TestDocumentActionToolsStatusManagement:
     def test_calculate_time_threshold_month(self):
         """Test _calculate_time_threshold with 'month' range."""
         tools = DocumentActionTools()
-        
+
         result = tools._calculate_time_threshold("month")
-        
+
         assert isinstance(result, datetime)
         # Should be approximately 30 days ago
         from datetime import timedelta
+
         now = datetime.now()
         month_ago = now - timedelta(days=30)
         # Allow 1 second difference for execution time
@@ -589,9 +653,9 @@ class TestDocumentActionToolsStatusManagement:
     def test_calculate_time_threshold_default(self):
         """Test _calculate_time_threshold with unknown range defaults to datetime.min."""
         tools = DocumentActionTools()
-        
+
         result = tools._calculate_time_threshold("unknown")
-        
+
         assert isinstance(result, datetime)
         # Should default to datetime.min for "all time"
         assert result == datetime.min
@@ -600,30 +664,30 @@ class TestDocumentActionToolsStatusManagement:
         """Test _serialize_for_json with dictionary."""
         pytest.importorskip("PIL", reason="PIL/Pillow not available")
         tools = DocumentActionTools()
-        
+
         data = {"key1": "value1", "key2": 42, "key3": True}
         result = tools._serialize_for_json(data)
-        
+
         assert result == data  # Dicts should pass through
 
     def test_serialize_for_json_list(self):
         """Test _serialize_for_json with list."""
         pytest.importorskip("PIL", reason="PIL/Pillow not available")
         tools = DocumentActionTools()
-        
+
         data = [1, 2, 3, "test"]
         result = tools._serialize_for_json(data)
-        
+
         assert result == data  # Lists should pass through
 
     def test_serialize_for_json_datetime(self):
         """Test _serialize_for_json converts datetime to ISO string."""
         pytest.importorskip("PIL", reason="PIL/Pillow not available")
         tools = DocumentActionTools()
-        
+
         dt = datetime(2025, 1, 15, 10, 30, 0)
         result = tools._serialize_for_json(dt)
-        
+
         assert isinstance(result, str)
         assert "2025-01-15" in result
 
@@ -631,7 +695,7 @@ class TestDocumentActionToolsStatusManagement:
         """Test _serialize_for_json handles nested structures."""
         pytest.importorskip("PIL", reason="PIL/Pillow not available")
         tools = DocumentActionTools()
-        
+
         data = {
             "timestamp": datetime(2025, 1, 15, 10, 30, 0),
             "nested": {
@@ -639,9 +703,9 @@ class TestDocumentActionToolsStatusManagement:
             },
             "list": [datetime(2025, 1, 17, 12, 0, 0)],
         }
-        
+
         result = tools._serialize_for_json(data)
-        
+
         assert isinstance(result["timestamp"], str)
         assert isinstance(result["nested"]["another_timestamp"], str)
         assert isinstance(result["list"][0], str)
@@ -650,13 +714,13 @@ class TestDocumentActionToolsStatusManagement:
         """Test _serialize_for_json with PIL Image (if available)."""
         pytest.importorskip("PIL", reason="PIL/Pillow not available")
         from PIL import Image
-        
+
         tools = DocumentActionTools()
-        
+
         # Create a simple test image
-        img = Image.new('RGB', (10, 10), color='red')
+        img = Image.new("RGB", (10, 10), color="red")
         result = tools._serialize_for_json(img)
-        
+
         assert isinstance(result, dict)
         assert result["_type"] == "PIL_Image"
         assert "data" in result
@@ -670,13 +734,13 @@ class TestDocumentActionToolsFileValidation:
     async def test_validate_document_file_valid(self, tmp_path):
         """Test _validate_document_file with valid file."""
         tools = DocumentActionTools()
-        
+
         # Create a test PDF file
         test_file = tmp_path / "test.pdf"
         test_file.write_bytes(b"fake pdf content")
-        
+
         result = await tools._validate_document_file(str(test_file))
-        
+
         assert result["valid"] is True
         assert result["file_type"] == "pdf"
         assert result["file_size"] > 0
@@ -685,9 +749,9 @@ class TestDocumentActionToolsFileValidation:
     async def test_validate_document_file_not_exists(self):
         """Test _validate_document_file with non-existent file."""
         tools = DocumentActionTools()
-        
+
         result = await tools._validate_document_file("/nonexistent/file.pdf")
-        
+
         assert result["valid"] is False
         assert "does not exist" in result["error"]
 
@@ -696,13 +760,13 @@ class TestDocumentActionToolsFileValidation:
         """Test _validate_document_file with file exceeding size limit."""
         tools = DocumentActionTools()
         tools.max_file_size = 10  # Very small limit for testing
-        
+
         # Create a large file
         test_file = tmp_path / "large.pdf"
         test_file.write_bytes(b"x" * 100)
-        
+
         result = await tools._validate_document_file(str(test_file))
-        
+
         assert result["valid"] is False
         assert "exceeds" in result["error"]
 
@@ -710,12 +774,12 @@ class TestDocumentActionToolsFileValidation:
     async def test_validate_document_file_unsupported_type(self, tmp_path):
         """Test _validate_document_file with unsupported file type."""
         tools = DocumentActionTools()
-        
+
         test_file = tmp_path / "test.xyz"
         test_file.write_bytes(b"content")
-        
+
         result = await tools._validate_document_file(str(test_file))
-        
+
         assert result["valid"] is False
         assert "Unsupported file type" in result["error"]
 
@@ -726,7 +790,7 @@ class TestDocumentActionToolsQualityScore:
     def test_create_quality_score_from_validation_dict(self):
         """Test _create_quality_score_from_validation with dictionary."""
         tools = DocumentActionTools()
-        
+
         validation_data = {
             "overall_score": 0.85,
             "completeness_score": 0.90,
@@ -738,9 +802,9 @@ class TestDocumentActionToolsQualityScore:
             "issues_found": [],
             "confidence": 0.95,
         }
-        
+
         result = tools._create_quality_score_from_validation(validation_data)
-        
+
         assert result.overall_score == 0.85
         assert result.completeness_score == 0.90
         assert result.accuracy_score == 0.80
@@ -754,14 +818,14 @@ class TestDocumentActionToolsQualityScore:
     def test_create_quality_score_from_validation_dict_string_reasoning(self):
         """Test _create_quality_score_from_validation with string reasoning."""
         tools = DocumentActionTools()
-        
+
         validation_data = {
             "overall_score": 0.75,
             "reasoning": "String reasoning text",
         }
-        
+
         result = tools._create_quality_score_from_validation(validation_data)
-        
+
         assert isinstance(result.reasoning, dict)
         assert result.reasoning["summary"] == "String reasoning text"
         assert result.reasoning["details"] == "String reasoning text"
@@ -769,7 +833,7 @@ class TestDocumentActionToolsQualityScore:
     def test_create_quality_score_from_validation_object(self):
         """Test _create_quality_score_from_validation with object."""
         tools = DocumentActionTools()
-        
+
         class ValidationObj:
             def __init__(self):
                 self.overall_score = 0.85
@@ -781,10 +845,10 @@ class TestDocumentActionToolsQualityScore:
                 self.reasoning = "Object reasoning"
                 self.issues_found = []
                 self.confidence = 0.95
-        
+
         obj = ValidationObj()
         result = tools._create_quality_score_from_validation(obj)
-        
+
         assert result.overall_score == 0.85
         assert result.decision.value == "APPROVE"
         assert isinstance(result.reasoning, dict)
@@ -794,8 +858,10 @@ class TestDocumentActionToolsQualityScore:
     async def test_extract_quality_from_extraction_data_success(self):
         """Test _extract_quality_from_extraction_data with valid data."""
         tools = DocumentActionTools()
-        
-        with patch.object(tools, "_get_extraction_data", return_value={"quality_score": 0.85}):
+
+        with patch.object(
+            tools, "_get_extraction_data", return_value={"quality_score": 0.85}
+        ):
             result = await tools._extract_quality_from_extraction_data("doc-1")
             assert result == 0.85
 
@@ -803,7 +869,7 @@ class TestDocumentActionToolsQualityScore:
     async def test_extract_quality_from_extraction_data_no_score(self):
         """Test _extract_quality_from_extraction_data with no quality score."""
         tools = DocumentActionTools()
-        
+
         with patch.object(tools, "_get_extraction_data", return_value={}):
             result = await tools._extract_quality_from_extraction_data("doc-1")
             assert result == 0.0
@@ -812,8 +878,10 @@ class TestDocumentActionToolsQualityScore:
     async def test_extract_quality_from_extraction_data_error(self):
         """Test _extract_quality_from_extraction_data handles errors gracefully."""
         tools = DocumentActionTools()
-        
-        with patch.object(tools, "_get_extraction_data", side_effect=Exception("Test error")):
+
+        with patch.object(
+            tools, "_get_extraction_data", side_effect=Exception("Test error")
+        ):
             result = await tools._extract_quality_from_extraction_data("doc-1")
             assert result == 0.0
 
@@ -824,9 +892,9 @@ class TestDocumentActionToolsMockData:
     def test_get_mock_extraction_data(self):
         """Test _get_mock_extraction_data generates valid structure."""
         tools = DocumentActionTools()
-        
+
         result = tools._get_mock_extraction_data()
-        
+
         assert isinstance(result, dict)
         assert "extraction_results" in result
         assert "confidence_scores" in result
@@ -843,13 +911,12 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_upload_document_validation_failure(self, tmp_path):
         """Test upload_document with validation failure."""
         tools = DocumentActionTools()
-        
+
         # File doesn't exist
         result = await tools.upload_document(
-            file_path="/nonexistent/file.pdf",
-            document_type="invoice"
+            file_path="/nonexistent/file.pdf", document_type="invoice"
         )
-        
+
         assert result["success"] is False
         assert "validation failed" in result["message"].lower()
 
@@ -857,18 +924,23 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_upload_document_success(self, tmp_path):
         """Test upload_document with valid file."""
         tools = DocumentActionTools()
-        
+
         # Create test file
         test_file = tmp_path / "test.pdf"
         test_file.write_bytes(b"fake pdf content")
-        
-        with patch.object(tools, "_start_document_processing", return_value={"processing_started": True}), \
-             patch.object(tools, "_save_status_data"):
+
+        with (
+            patch.object(
+                tools,
+                "_start_document_processing",
+                return_value={"processing_started": True},
+            ),
+            patch.object(tools, "_save_status_data"),
+        ):
             result = await tools.upload_document(
-                file_path=str(test_file),
-                document_type="invoice"
+                file_path=str(test_file), document_type="invoice"
             )
-            
+
             assert result["success"] is True
             assert "document_id" in result
             assert result["status"] == "processing_started"
@@ -877,19 +949,23 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_upload_document_with_custom_id(self, tmp_path):
         """Test upload_document with custom document ID."""
         tools = DocumentActionTools()
-        
+
         test_file = tmp_path / "test.pdf"
         test_file.write_bytes(b"fake pdf content")
         custom_id = "custom-doc-123"
-        
-        with patch.object(tools, "_start_document_processing", return_value={"processing_started": True}), \
-             patch.object(tools, "_save_status_data"):
+
+        with (
+            patch.object(
+                tools,
+                "_start_document_processing",
+                return_value={"processing_started": True},
+            ),
+            patch.object(tools, "_save_status_data"),
+        ):
             result = await tools.upload_document(
-                file_path=str(test_file),
-                document_type="invoice",
-                document_id=custom_id
+                file_path=str(test_file), document_type="invoice", document_id=custom_id
             )
-            
+
             assert result["success"] is True
             assert result["document_id"] == custom_id
 
@@ -897,10 +973,10 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_get_document_status_not_found(self):
         """Test get_document_status with non-existent document."""
         tools = DocumentActionTools()
-        
+
         with patch.object(tools, "_get_processing_status", return_value=None):
             result = await tools.get_document_status("nonexistent-doc")
-            
+
             assert result["success"] is True  # Returns success with unknown status
             assert result["status"] == "unknown"
 
@@ -908,7 +984,7 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_get_document_status_found(self):
         """Test get_document_status with existing document."""
         tools = DocumentActionTools()
-        
+
         doc_id = "test-doc-123"
         tools.document_statuses[doc_id] = {
             "status": "processing",
@@ -917,7 +993,7 @@ class TestDocumentActionToolsDocumentOperations:
             "stages": [{"name": "preprocessing", "status": "completed"}],
             "estimated_completion": datetime.now().timestamp() + 60,
         }
-        
+
         with patch.object(tools, "_get_processing_status") as mock_get:
             mock_get.return_value = {
                 "status": "processing",
@@ -926,9 +1002,9 @@ class TestDocumentActionToolsDocumentOperations:
                 "stages": [{"name": "preprocessing", "status": "completed"}],
                 "estimated_completion": datetime.now().timestamp() + 60,
             }
-            
+
             result = await tools.get_document_status(doc_id)
-            
+
             assert result["success"] is True
             assert result["status"] == "processing"
             assert result["progress"] == 50
@@ -937,10 +1013,10 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_extract_document_data_not_found(self):
         """Test extract_document_data with non-existent document."""
         tools = DocumentActionTools()
-        
+
         with patch.object(tools, "_get_extraction_data", return_value=None):
             result = await tools.extract_document_data("nonexistent-doc")
-            
+
             assert result["success"] is False
             assert "not found" in result["message"].lower()
 
@@ -948,10 +1024,9 @@ class TestDocumentActionToolsDocumentOperations:
     async def test_start_document_processing(self):
         """Test _start_document_processing returns processing info."""
         tools = DocumentActionTools()
-        
+
         result = await tools._start_document_processing()
-        
+
         assert result["processing_started"] is True
         assert "pipeline_id" in result
         assert "estimated_completion" in result
-

@@ -217,25 +217,27 @@ def run_assessment():
     for i, test_case in enumerate(TEST_CASES, 1):
         print(f"\nTest {i}: {test_case['name']}")
         print(f"  Message: {test_case['message'][:50]}...")
-        
+
         result = test_chat_endpoint(
             test_case["message"],
             test_case["session_id"],
             context={"warehouse": "WH-01", "role": "manager", "environment": "Dev"},
         )
-        
-        results.append({
-            "test_case": test_case,
-            "result": result,
-        })
-        
+
+        results.append(
+            {
+                "test_case": test_case,
+                "result": result,
+            }
+        )
+
         if result["success"]:
             print(f"  ✅ Status: {result['status_code']}")
             print(f"  ⏱️  Response time: {result['response_time']:.2f}s")
             print(f"  📍 Route: {result.get('route', 'N/A')}")
             print(f"  🎯 Intent: {result.get('intent', 'N/A')}")
             print(f"  📊 Confidence: {result.get('confidence', 0.0):.2f}")
-            
+
             # Check if route matches expected
             if "expected_route" in test_case:
                 expected = test_case["expected_route"]
@@ -243,35 +245,39 @@ def run_assessment():
                 if actual in expected:
                     print(f"  ✅ Route matches expected: {expected}")
                 else:
-                    print(f"  ⚠️  Route mismatch. Expected one of {expected}, got {actual}")
+                    print(
+                        f"  ⚠️  Route mismatch. Expected one of {expected}, got {actual}"
+                    )
         else:
             print(f"  ❌ Failed: {result.get('error', 'Unknown error')}")
             if test_case.get("should_fail", False):
                 print(f"  ✅ Expected failure (test case marked as should_fail)")
             else:
                 print(f"  ⚠️  Unexpected failure")
-        
+
         # Small delay between tests
         time.sleep(0.5)
-    
+
     print()
     print("=" * 80)
     print("ASSESSMENT SUMMARY")
     print("=" * 80)
     print()
-    
+
     # Summary statistics
     total_tests = len(results)
     successful_tests = sum(1 for r in results if r["result"]["success"])
     failed_tests = total_tests - successful_tests
-    
+
     print(f"Total Tests: {total_tests}")
     print(f"✅ Successful: {successful_tests}")
     print(f"❌ Failed: {failed_tests}")
     print()
-    
+
     # Response time statistics
-    response_times = [r["result"]["response_time"] for r in results if r["result"]["success"]]
+    response_times = [
+        r["result"]["response_time"] for r in results if r["result"]["success"]
+    ]
     if response_times:
         avg_time = sum(response_times) / len(response_times)
         max_time = max(response_times)
@@ -281,39 +287,47 @@ def run_assessment():
         print(f"  Min: {min_time:.2f}s")
         print(f"  Max: {max_time:.2f}s")
         print()
-    
+
     # Route distribution
     routes = {}
     for r in results:
         if r["result"]["success"]:
             route = r["result"].get("route", "unknown")
             routes[route] = routes.get(route, 0) + 1
-    
+
     if routes:
         print("Route Distribution:")
         for route, count in sorted(routes.items(), key=lambda x: x[1], reverse=True):
             print(f"  {route}: {count}")
         print()
-    
+
     # Issues and recommendations
     print("ISSUES & RECOMMENDATIONS:")
     print("-" * 80)
-    
+
     issues = []
     recommendations = []
-    
+
     # Check for timeout issues
-    timeout_tests = [r for r in results if r["result"].get("error") == "Request timed out after 60 seconds"]
+    timeout_tests = [
+        r
+        for r in results
+        if r["result"].get("error") == "Request timed out after 60 seconds"
+    ]
     if timeout_tests:
         issues.append(f"{len(timeout_tests)} test(s) timed out")
-        recommendations.append("Consider optimizing query processing or increasing timeout for complex queries")
-    
+        recommendations.append(
+            "Consider optimizing query processing or increasing timeout for complex queries"
+        )
+
     # Check for slow responses
     slow_tests = [r for r in results if r["result"].get("response_time", 0) > 10]
     if slow_tests:
         issues.append(f"{len(slow_tests)} test(s) took longer than 10 seconds")
-        recommendations.append("Investigate performance bottlenecks in MCP planner or enhancement services")
-    
+        recommendations.append(
+            "Investigate performance bottlenecks in MCP planner or enhancement services"
+        )
+
     # Check for route mismatches
     route_mismatches = []
     for r in results:
@@ -321,30 +335,34 @@ def run_assessment():
             expected = r["test_case"]["expected_route"]
             actual = r["result"].get("route", "")
             if actual not in expected:
-                route_mismatches.append(f"{r['test_case']['name']}: expected {expected}, got {actual}")
-    
+                route_mismatches.append(
+                    f"{r['test_case']['name']}: expected {expected}, got {actual}"
+                )
+
     if route_mismatches:
         issues.append(f"{len(route_mismatches)} route mismatch(es)")
         recommendations.append("Review intent classification logic in MCP planner")
-    
+
     if not backend_healthy:
         issues.append("Backend health check failed")
         recommendations.append("Ensure backend is running on port 8001")
-    
+
     if not frontend_accessible:
         issues.append("Frontend not accessible")
         recommendations.append("Ensure frontend is running on port 3001")
-    
+
     if not proxy_working:
         issues.append("Proxy configuration may have issues")
-        recommendations.append("Check setupProxy.js configuration and backend connectivity")
-    
+        recommendations.append(
+            "Check setupProxy.js configuration and backend connectivity"
+        )
+
     if issues:
         for issue in issues:
             print(f"  ⚠️  {issue}")
     else:
         print("  ✅ No major issues detected")
-    
+
     print()
     if recommendations:
         print("Recommendations:")
@@ -352,11 +370,10 @@ def run_assessment():
             print(f"  • {rec}")
     else:
         print("  ✅ No recommendations at this time")
-    
+
     print()
     print("=" * 80)
 
 
 if __name__ == "__main__":
     run_assessment()
-

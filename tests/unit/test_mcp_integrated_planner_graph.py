@@ -49,10 +49,10 @@ from src.api.graphs.mcp_integrated_planner_graph import (
     AGENT_TIMEOUT_SIMPLE,
 )
 
-
 # ============================================================================
 # Test Helper Functions
 # ============================================================================
+
 
 class TestHelperFunctions:
     """Test helper functions in mcp_integrated_planner_graph."""
@@ -119,7 +119,9 @@ class TestHelperFunctions:
 
     def test_detect_complex_query_with_keywords(self):
         """Test detecting complex query with keywords."""
-        query = "I need to optimize the warehouse operations and analyze the performance"
+        query = (
+            "I need to optimize the warehouse operations and analyze the performance"
+        )
         assert _detect_complex_query(query) is True
 
     def test_detect_complex_query_with_actions_and_and(self):
@@ -139,17 +141,23 @@ class TestHelperFunctions:
 
     def test_calculate_agent_timeout_reasoning(self):
         """Test calculating timeout for reasoning queries."""
-        timeout = _calculate_agent_timeout(enable_reasoning=True, is_complex_query=False)
+        timeout = _calculate_agent_timeout(
+            enable_reasoning=True, is_complex_query=False
+        )
         assert timeout == AGENT_TIMEOUT_REASONING
 
     def test_calculate_agent_timeout_complex(self):
         """Test calculating timeout for complex queries."""
-        timeout = _calculate_agent_timeout(enable_reasoning=False, is_complex_query=True)
+        timeout = _calculate_agent_timeout(
+            enable_reasoning=False, is_complex_query=True
+        )
         assert timeout == AGENT_TIMEOUT_COMPLEX
 
     def test_calculate_agent_timeout_simple(self):
         """Test calculating timeout for simple queries."""
-        timeout = _calculate_agent_timeout(enable_reasoning=False, is_complex_query=False)
+        timeout = _calculate_agent_timeout(
+            enable_reasoning=False, is_complex_query=False
+        )
         assert timeout == AGENT_TIMEOUT_SIMPLE
 
     def test_convert_response_to_dict_from_dict(self):
@@ -166,6 +174,7 @@ class TestHelperFunctions:
 
     def test_convert_response_to_dict_from_object(self):
         """Test converting object response to dict."""
+
         @dataclass
         class MockResponse:
             natural_language: str = "Test"
@@ -187,6 +196,7 @@ class TestHelperFunctions:
 
     def test_convert_response_to_dict_from_object_with_optional_fields(self):
         """Test converting object with optional fields."""
+
         @dataclass
         class MockResponse:
             natural_language: str = "Test"
@@ -203,7 +213,9 @@ class TestHelperFunctions:
     def test_create_error_response_timeout(self):
         """Test creating error response for timeout."""
         error = TimeoutError("Operation timed out")
-        result = _create_error_response("equipment", "test query", error, is_timeout=True)
+        result = _create_error_response(
+            "equipment", "test query", error, is_timeout=True
+        )
         assert result["response_type"] == "timeout"
         assert result["confidence"] == 0.3
         assert "timeout" in result["data"]["error"]
@@ -212,7 +224,9 @@ class TestHelperFunctions:
     def test_create_error_response_general(self):
         """Test creating error response for general error."""
         error = ValueError("Invalid input")
-        result = _create_error_response("operations", "test query", error, is_timeout=False)
+        result = _create_error_response(
+            "operations", "test query", error, is_timeout=False
+        )
         assert result["response_type"] == "error"
         assert result["confidence"] == 0.3
         assert "error" in result["data"]
@@ -231,6 +245,7 @@ class TestHelperFunctions:
 
     def test_convert_reasoning_chain_to_dict_dataclass(self):
         """Test converting dataclass reasoning chain."""
+
         @dataclass
         class MockStep:
             step_id: str = "step1"
@@ -287,6 +302,7 @@ class TestHelperFunctions:
 # ============================================================================
 # Test MCPIntentClassifier
 # ============================================================================
+
 
 class TestMCPIntentClassifier:
     """Test MCPIntentClassifier class."""
@@ -377,6 +393,7 @@ class TestMCPIntentClassifier:
 # Test MCPPlannerGraph
 # ============================================================================
 
+
 class TestMCPPlannerGraph:
     """Test MCPPlannerGraph class."""
 
@@ -388,10 +405,20 @@ class TestMCPPlannerGraph:
     @pytest.mark.asyncio
     async def test_planner_graph_initialization(self, planner_graph):
         """Test planner graph initialization."""
-        with patch("src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService") as mock_tool_discovery_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.ToolBindingService") as mock_tool_binding_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.ToolValidationService") as mock_tool_validation_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.MCPManager") as mock_mcp_manager_class:
+        with (
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService"
+            ) as mock_tool_discovery_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolBindingService"
+            ) as mock_tool_binding_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolValidationService"
+            ) as mock_tool_validation_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.MCPManager"
+            ) as mock_mcp_manager_class,
+        ):
 
             mock_tool_discovery = AsyncMock()
             mock_tool_discovery.start_discovery = AsyncMock(return_value=None)
@@ -419,13 +446,25 @@ class TestMCPPlannerGraph:
     @pytest.mark.asyncio
     async def test_planner_graph_initialization_timeout(self, planner_graph):
         """Test planner graph initialization with tool discovery timeout."""
-        with patch("src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService") as mock_tool_discovery_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.ToolBindingService") as mock_tool_binding_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.ToolValidationService") as mock_tool_validation_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.MCPManager") as mock_mcp_manager_class:
+        with (
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService"
+            ) as mock_tool_discovery_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolBindingService"
+            ) as mock_tool_binding_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolValidationService"
+            ) as mock_tool_validation_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.MCPManager"
+            ) as mock_mcp_manager_class,
+        ):
 
             mock_tool_discovery = AsyncMock()
-            mock_tool_discovery.start_discovery = AsyncMock(side_effect=asyncio.TimeoutError())
+            mock_tool_discovery.start_discovery = AsyncMock(
+                side_effect=asyncio.TimeoutError()
+            )
             mock_tool_discovery_class.return_value = mock_tool_discovery
 
             mock_tool_binding = Mock()
@@ -445,13 +484,25 @@ class TestMCPPlannerGraph:
     @pytest.mark.asyncio
     async def test_planner_graph_initialization_discovery_error(self, planner_graph):
         """Test planner graph initialization with tool discovery error."""
-        with patch("src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService") as mock_tool_discovery_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.ToolBindingService") as mock_tool_binding_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.ToolValidationService") as mock_tool_validation_class, \
-             patch("src.api.graphs.mcp_integrated_planner_graph.MCPManager") as mock_mcp_manager_class:
+        with (
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService"
+            ) as mock_tool_discovery_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolBindingService"
+            ) as mock_tool_binding_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.ToolValidationService"
+            ) as mock_tool_validation_class,
+            patch(
+                "src.api.graphs.mcp_integrated_planner_graph.MCPManager"
+            ) as mock_mcp_manager_class,
+        ):
 
             mock_tool_discovery = AsyncMock()
-            mock_tool_discovery.start_discovery = AsyncMock(side_effect=Exception("Discovery failed"))
+            mock_tool_discovery.start_discovery = AsyncMock(
+                side_effect=Exception("Discovery failed")
+            )
             mock_tool_discovery_class.return_value = mock_tool_discovery
 
             mock_tool_binding = Mock()
@@ -471,7 +522,10 @@ class TestMCPPlannerGraph:
     @pytest.mark.asyncio
     async def test_planner_graph_initialization_failure(self, planner_graph):
         """Test planner graph initialization with complete failure."""
-        with patch("src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService", side_effect=Exception("Init failed")):
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.ToolDiscoveryService",
+            side_effect=Exception("Init failed"),
+        ):
             await planner_graph.initialize()
 
             # Should handle failure gracefully
@@ -481,16 +535,18 @@ class TestMCPPlannerGraph:
 
     def test_create_graph(self, planner_graph):
         """Test graph creation."""
-        with patch.object(planner_graph, "_mcp_route_intent", return_value={}), \
-             patch.object(planner_graph, "_mcp_equipment_agent", return_value={}), \
-             patch.object(planner_graph, "_mcp_operations_agent", return_value={}), \
-             patch.object(planner_graph, "_mcp_safety_agent", return_value={}), \
-             patch.object(planner_graph, "_mcp_forecasting_agent", return_value={}), \
-             patch.object(planner_graph, "_mcp_document_agent", return_value={}), \
-             patch.object(planner_graph, "_mcp_general_agent", return_value={}), \
-             patch.object(planner_graph, "_handle_ambiguous_query", return_value={}), \
-             patch.object(planner_graph, "_mcp_synthesize_response", return_value={}), \
-             patch.object(planner_graph, "_route_to_agent", return_value="equipment"):
+        with (
+            patch.object(planner_graph, "_mcp_route_intent", return_value={}),
+            patch.object(planner_graph, "_mcp_equipment_agent", return_value={}),
+            patch.object(planner_graph, "_mcp_operations_agent", return_value={}),
+            patch.object(planner_graph, "_mcp_safety_agent", return_value={}),
+            patch.object(planner_graph, "_mcp_forecasting_agent", return_value={}),
+            patch.object(planner_graph, "_mcp_document_agent", return_value={}),
+            patch.object(planner_graph, "_mcp_general_agent", return_value={}),
+            patch.object(planner_graph, "_handle_ambiguous_query", return_value={}),
+            patch.object(planner_graph, "_mcp_synthesize_response", return_value={}),
+            patch.object(planner_graph, "_route_to_agent", return_value="equipment"),
+        ):
 
             graph = planner_graph._create_graph()
             assert graph is not None
@@ -500,21 +556,26 @@ class TestMCPPlannerGraph:
         """Test processing warehouse query."""
         # Mock the graph and its execution
         mock_graph = AsyncMock()
-        mock_graph.ainvoke = AsyncMock(return_value={
-            "final_response": "Test response",
-            "user_intent": "equipment",
-            "routing_decision": "equipment",
-        })
+        mock_graph.ainvoke = AsyncMock(
+            return_value={
+                "final_response": "Test response",
+                "user_intent": "equipment",
+                "routing_decision": "equipment",
+            }
+        )
         planner_graph.graph = mock_graph
         planner_graph.initialized = True
 
         result = await planner_graph.process_warehouse_query(
-            message="Show me forklift status",
-            session_id="test_session"
+            message="Show me forklift status", session_id="test_session"
         )
 
         assert result is not None
-        assert "response" in result or "final_response" in result or result.get("user_intent") == "equipment"
+        assert (
+            "response" in result
+            or "final_response" in result
+            or result.get("user_intent") == "equipment"
+        )
 
     @pytest.mark.asyncio
     async def test_process_warehouse_query_not_initialized(self, planner_graph):
@@ -525,8 +586,7 @@ class TestMCPPlannerGraph:
         # Should handle gracefully
         try:
             result = await planner_graph.process_warehouse_query(
-                message="Test query",
-                session_id="test_session"
+                message="Test query", session_id="test_session"
             )
             # Should either raise or return error response
             assert result is not None
@@ -539,7 +599,9 @@ class TestMCPPlannerGraph:
         """Test MCP route intent method."""
         # Setup
         planner_graph.intent_classifier = Mock()
-        planner_graph.intent_classifier.classify_intent_with_mcp = AsyncMock(return_value="equipment")
+        planner_graph.intent_classifier.classify_intent_with_mcp = AsyncMock(
+            return_value="equipment"
+        )
         planner_graph.tool_discovery = AsyncMock()
         planner_graph.tool_discovery.get_available_tools = AsyncMock(return_value=[])
 
@@ -559,7 +621,10 @@ class TestMCPPlannerGraph:
             "reasoning_chain": None,
         }
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_semantic_router", side_effect=ImportError()):
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_semantic_router",
+            side_effect=ImportError(),
+        ):
             result = await planner_graph._mcp_route_intent(state)
             assert result["user_intent"] is not None
             assert result["routing_decision"] is not None
@@ -628,10 +693,16 @@ class TestMCPPlannerGraph:
             "reasoning_chain": None,
         }
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_enhanced_retriever", side_effect=ImportError()):
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_enhanced_retriever",
+            side_effect=ImportError(),
+        ):
             result = await planner_graph._handle_ambiguous_query(state)
             assert result["final_response"] is not None
-            assert "help" in result["final_response"].lower() or "warehouse" in result["final_response"].lower()
+            assert (
+                "help" in result["final_response"].lower()
+                or "warehouse" in result["final_response"].lower()
+            )
 
     @pytest.mark.asyncio
     async def test_mcp_equipment_agent(self, planner_graph):
@@ -652,19 +723,25 @@ class TestMCPPlannerGraph:
             "reasoning_chain": None,
         }
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_mcp_equipment_agent") as mock_get_agent:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_mcp_equipment_agent"
+        ) as mock_get_agent:
             mock_agent = AsyncMock()
-            mock_agent.process_query = AsyncMock(return_value={
-                "natural_language": "Forklift FL-001 is operational",
-                "data": {},
-                "confidence": 0.9,
-                "response_type": "equipment",
-            })
+            mock_agent.process_query = AsyncMock(
+                return_value={
+                    "natural_language": "Forklift FL-001 is operational",
+                    "data": {},
+                    "confidence": 0.9,
+                    "response_type": "equipment",
+                }
+            )
             mock_get_agent.return_value = mock_agent
 
             result = await planner_graph._mcp_equipment_agent(state)
             assert "equipment" in result["agent_responses"]
-            assert result["agent_responses"]["equipment"]["response_type"] == "equipment"
+            assert (
+                result["agent_responses"]["equipment"]["response_type"] == "equipment"
+            )
 
     @pytest.mark.asyncio
     async def test_mcp_equipment_agent_empty_message(self, planner_graph):
@@ -708,7 +785,9 @@ class TestMCPPlannerGraph:
             "reasoning_chain": None,
         }
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_mcp_equipment_agent") as mock_get_agent:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_mcp_equipment_agent"
+        ) as mock_get_agent:
             mock_agent = AsyncMock()
             mock_agent.process_query = AsyncMock(side_effect=asyncio.TimeoutError())
             mock_get_agent.return_value = mock_agent
@@ -750,6 +829,7 @@ class TestMCPPlannerGraph:
     @pytest.mark.asyncio
     async def test_mcp_synthesize_response_with_reasoning_chain(self, planner_graph):
         """Test synthesize response with reasoning chain."""
+
         @dataclass
         class MockReasoningChain:
             chain_id: str = "test"
@@ -787,7 +867,10 @@ class TestMCPPlannerGraph:
 
         result = await planner_graph._mcp_synthesize_response(state)
         assert result["final_response"] is not None
-        assert "reasoning_chain" in result["context"] or result.get("reasoning_chain") is not None
+        assert (
+            "reasoning_chain" in result["context"]
+            or result.get("reasoning_chain") is not None
+        )
 
     @pytest.mark.asyncio
     async def test_process_warehouse_query_with_initialization(self, planner_graph):
@@ -795,11 +878,15 @@ class TestMCPPlannerGraph:
         planner_graph.initialized = False
         planner_graph.graph = None
 
-        with patch.object(planner_graph, "initialize", new_callable=AsyncMock) as mock_init:
+        with patch.object(
+            planner_graph, "initialize", new_callable=AsyncMock
+        ) as mock_init:
             mock_init.return_value = None
-            with patch.object(planner_graph, "_create_fallback_response") as mock_fallback:
+            with patch.object(
+                planner_graph, "_create_fallback_response"
+            ) as mock_fallback:
                 mock_fallback.return_value = {"response": "Fallback response"}
-                
+
                 # Test timeout during initialization
                 mock_init.side_effect = asyncio.TimeoutError()
                 result = await planner_graph.process_warehouse_query("Test", "session")
@@ -810,18 +897,18 @@ class TestMCPPlannerGraph:
     async def test_process_warehouse_query_with_context(self, planner_graph):
         """Test process_warehouse_query with context."""
         mock_graph = AsyncMock()
-        mock_graph.ainvoke = AsyncMock(return_value={
-            "final_response": "Test response",
-            "user_intent": "equipment",
-        })
+        mock_graph.ainvoke = AsyncMock(
+            return_value={
+                "final_response": "Test response",
+                "user_intent": "equipment",
+            }
+        )
         planner_graph.graph = mock_graph
         planner_graph.initialized = True
 
         context = {"enable_reasoning": True, "reasoning_types": ["analytical"]}
         result = await planner_graph.process_warehouse_query(
-            message="Test query",
-            session_id="test_session",
-            context=context
+            message="Test query", session_id="test_session", context=context
         )
         assert result is not None
 
@@ -833,17 +920,23 @@ class TestMCPPlannerGraph:
 
     def test_create_fallback_response_operations(self, planner_graph):
         """Test fallback response for operations query."""
-        result = planner_graph._create_fallback_response("Create a wave", "test_session")
+        result = planner_graph._create_fallback_response(
+            "Create a wave", "test_session"
+        )
         assert result["intent"] == "operations"
 
     def test_create_fallback_response_inventory(self, planner_graph):
         """Test fallback response for inventory query."""
-        result = planner_graph._create_fallback_response("Check inventory for SKU-123", "test_session")
+        result = planner_graph._create_fallback_response(
+            "Check inventory for SKU-123", "test_session"
+        )
         assert result["intent"] == "inventory"
 
     def test_create_fallback_response_equipment(self, planner_graph):
         """Test fallback response for equipment query."""
-        result = planner_graph._create_fallback_response("Show equipment status", "test_session")
+        result = planner_graph._create_fallback_response(
+            "Show equipment status", "test_session"
+        )
         assert result["intent"] == "equipment"
 
     def test_create_fallback_response_general(self, planner_graph):
@@ -855,10 +948,9 @@ class TestMCPPlannerGraph:
     async def test_mcp_route_intent_with_semantic_router(self, planner_graph):
         """Test MCP route intent with semantic router."""
         planner_graph.intent_classifier = Mock()
-        planner_graph.intent_classifier.classify_intent_with_mcp = AsyncMock(return_value={
-            "intent": "equipment",
-            "confidence": 0.8
-        })
+        planner_graph.intent_classifier.classify_intent_with_mcp = AsyncMock(
+            return_value={"intent": "equipment", "confidence": 0.8}
+        )
         planner_graph.tool_discovery = AsyncMock()
         planner_graph.tool_discovery.get_available_tools = AsyncMock(return_value=[])
 
@@ -878,9 +970,13 @@ class TestMCPPlannerGraph:
             "reasoning_chain": None,
         }
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_semantic_router") as mock_get_router:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_semantic_router"
+        ) as mock_get_router:
             mock_router = AsyncMock()
-            mock_router.classify_intent_semantic = AsyncMock(return_value=("equipment", 0.9))
+            mock_router.classify_intent_semantic = AsyncMock(
+                return_value=("equipment", 0.9)
+            )
             mock_get_router.return_value = mock_router
 
             result = await planner_graph._mcp_route_intent(state)
@@ -891,7 +987,9 @@ class TestMCPPlannerGraph:
     async def test_mcp_route_intent_with_worker_keywords(self, planner_graph):
         """Test MCP route intent with worker keywords override."""
         planner_graph.intent_classifier = Mock()
-        planner_graph.intent_classifier.classify_intent_with_mcp = AsyncMock(return_value="general")
+        planner_graph.intent_classifier.classify_intent_with_mcp = AsyncMock(
+            return_value="general"
+        )
         planner_graph.tool_discovery = AsyncMock()
         planner_graph.tool_discovery.get_available_tools = AsyncMock(return_value=[])
 
@@ -911,7 +1009,10 @@ class TestMCPPlannerGraph:
             "reasoning_chain": None,
         }
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_semantic_router", side_effect=ImportError()):
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_semantic_router",
+            side_effect=ImportError(),
+        ):
             result = await planner_graph._mcp_route_intent(state)
             # Should override to operations due to worker keywords
             assert result["routing_decision"] == "operations"
@@ -937,7 +1038,10 @@ class TestMCPPlannerGraph:
 
         result = await planner_graph._mcp_synthesize_response(state)
         assert result["final_response"] is not None
-        assert "couldn't process" in result["final_response"].lower() or "try rephrasing" in result["final_response"].lower()
+        assert (
+            "couldn't process" in result["final_response"].lower()
+            or "try rephrasing" in result["final_response"].lower()
+        )
 
     @pytest.mark.asyncio
     async def test_mcp_synthesize_response_string_response(self, planner_graph):
@@ -946,9 +1050,7 @@ class TestMCPPlannerGraph:
             "messages": [HumanMessage(content="Test query")],
             "user_intent": "equipment",
             "routing_decision": "equipment",
-            "agent_responses": {
-                "equipment": "Simple string response"
-            },
+            "agent_responses": {"equipment": "Simple string response"},
             "final_response": None,
             "context": {},
             "session_id": "test",
@@ -968,6 +1070,7 @@ class TestMCPPlannerGraph:
 # Test Module-Level Functions
 # ============================================================================
 
+
 class TestModuleFunctions:
     """Test module-level functions."""
 
@@ -976,9 +1079,12 @@ class TestModuleFunctions:
         """Test getting MCP planner graph singleton."""
         # Clear the global instance
         import src.api.graphs.mcp_integrated_planner_graph as mcp_module
+
         mcp_module._mcp_planner_graph = None
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.MCPPlannerGraph") as mock_graph_class:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.MCPPlannerGraph"
+        ) as mock_graph_class:
             mock_graph = AsyncMock()
             mock_graph.initialize = AsyncMock(return_value=None)
             mock_graph_class.return_value = mock_graph
@@ -991,9 +1097,12 @@ class TestModuleFunctions:
     async def test_get_mcp_planner_graph_singleton(self):
         """Test that get_mcp_planner_graph returns same instance."""
         import src.api.graphs.mcp_integrated_planner_graph as mcp_module
+
         mcp_module._mcp_planner_graph = None
 
-        with patch("src.api.graphs.mcp_integrated_planner_graph.MCPPlannerGraph") as mock_graph_class:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.MCPPlannerGraph"
+        ) as mock_graph_class:
             mock_graph = AsyncMock()
             mock_graph.initialize = AsyncMock(return_value=None)
             mock_graph_class.return_value = mock_graph
@@ -1005,44 +1114,44 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_process_mcp_warehouse_query(self):
         """Test processing MCP warehouse query."""
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_mcp_planner_graph") as mock_get_graph:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_mcp_planner_graph"
+        ) as mock_get_graph:
             mock_graph = AsyncMock()
-            mock_graph.process_warehouse_query = AsyncMock(return_value={
-                "response": "Test response",
-                "intent": "equipment",
-            })
+            mock_graph.process_warehouse_query = AsyncMock(
+                return_value={
+                    "response": "Test response",
+                    "intent": "equipment",
+                }
+            )
             mock_get_graph.return_value = mock_graph
 
             result = await process_mcp_warehouse_query(
-                message="Test query",
-                session_id="test_session"
+                message="Test query", session_id="test_session"
             )
 
             assert result is not None
             mock_graph.process_warehouse_query.assert_called_once_with(
-                "Test query",
-                "test_session",
-                None
+                "Test query", "test_session", None
             )
 
     @pytest.mark.asyncio
     async def test_process_mcp_warehouse_query_with_context(self):
         """Test processing query with context."""
-        with patch("src.api.graphs.mcp_integrated_planner_graph.get_mcp_planner_graph") as mock_get_graph:
+        with patch(
+            "src.api.graphs.mcp_integrated_planner_graph.get_mcp_planner_graph"
+        ) as mock_get_graph:
             mock_graph = AsyncMock()
-            mock_graph.process_warehouse_query = AsyncMock(return_value={"response": "Test"})
+            mock_graph.process_warehouse_query = AsyncMock(
+                return_value={"response": "Test"}
+            )
             mock_get_graph.return_value = mock_graph
 
             context = {"user_id": "user123", "zone": "A"}
             result = await process_mcp_warehouse_query(
-                message="Test query",
-                session_id="test_session",
-                context=context
+                message="Test query", session_id="test_session", context=context
             )
 
             mock_graph.process_warehouse_query.assert_called_once_with(
-                "Test query",
-                "test_session",
-                context
+                "Test query", "test_session", context
             )
-
