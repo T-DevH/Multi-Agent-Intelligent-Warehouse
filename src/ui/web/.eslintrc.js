@@ -1,8 +1,6 @@
 module.exports = {
-  extends: [
-    'react-app',
-    'react-app/jest'
-  ],
+  extends: ['react-app'],
+  // 'react-app/jest' omitted: its override uses env "jest/globals" which triggers "Environment key jest/globals is unknown"
   rules: {
     // Basic rules for code quality
     'no-unused-vars': 'warn',

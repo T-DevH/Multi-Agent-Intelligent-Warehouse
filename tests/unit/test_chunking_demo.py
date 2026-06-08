@@ -27,18 +27,17 @@ sys.path.append(str(project_root))
 
 from src.retrieval.vector.chunking_service import ChunkingService
 
+
 def main():
     """Demonstrate chunking service functionality."""
     print("🔧 Enhanced Chunking Service Demo")
     print("=" * 50)
-    
+
     # Initialize chunking service
     chunking_service = ChunkingService(
-        chunk_size=512,
-        overlap_size=64,
-        min_chunk_size=100
+        chunk_size=512, overlap_size=64, min_chunk_size=100
     )
-    
+
     # Sample text for chunking
     sample_text = """
     Forklift Safety Procedures and Equipment Maintenance Guidelines
@@ -63,24 +62,24 @@ def main():
     Refresher training should be conducted annually or whenever there are changes in equipment or procedures.
     Supervisors should conduct regular safety observations and provide feedback to operators.
     """
-    
+
     print(f"Original text length: {len(sample_text)} characters")
     print(f"Target chunk size: 512 tokens")
     print(f"Overlap size: 64 tokens")
     print()
-    
+
     # Create chunks
     chunks = chunking_service.create_chunks(
         text=sample_text,
         source_id="safety_manual_001",
         source_type="manual",
         category="safety",
-        section="equipment_operations"
+        section="equipment_operations",
     )
-    
+
     print(f"✅ Created {len(chunks)} chunks")
     print()
-    
+
     # Display chunk details
     for i, chunk in enumerate(chunks):
         print(f"📄 Chunk {i+1}:")
@@ -91,15 +90,16 @@ def main():
         print(f"   Keywords: {', '.join(chunk.metadata.keywords[:5])}")
         print(f"   Content Preview: {chunk.content[:150]}...")
         print()
-    
+
     # Display statistics
     stats = chunking_service.get_chunk_statistics(chunks)
     print("📊 Chunk Statistics:")
     for key, value in stats.items():
         print(f"   {key}: {value}")
-    
+
     print()
     print("🎉 Chunking demonstration completed successfully!")
+
 
 if __name__ == "__main__":
     main()

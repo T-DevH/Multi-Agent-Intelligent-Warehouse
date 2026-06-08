@@ -325,7 +325,7 @@ class NeMoRetrieverPreprocessor:
 
         Uses:
         - nv-yolox-page-elements-v1 for element detection
-        - nemoretriever-page-elements-v1 for semantic regions
+        - nemotron-page-elements-v1 for semantic regions
         """
         # Immediately use mock if no API key - don't wait for timeout
         if not self.api_key:
@@ -351,7 +351,7 @@ class NeMoRetrieverPreprocessor:
                         "Content-Type": "application/json",
                     },
                     json={
-                        "model": "nvidia/llama-3.3-nemotron-super-49b-v1",  # Fallback model for page element detection
+                        "model": "nvidia/llama-3.3-nemotron-super-49b-v1.5",  # Fallback model for page element detection
                         "messages": [
                             {
                                 "role": "user",

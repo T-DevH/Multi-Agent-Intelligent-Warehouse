@@ -158,5 +158,38 @@ services:
       - backend
     restart: unless-stopped
 
+  llm-nim:
+    image: nvcr.io/nim/nvidia/llama-3.3-nemotron-super-49b-v1.5:latest
+    container_name: wosa-llm-nim
+    ports:
+      - "${LLM_NIM_PORT:-8000}:8000"
+    environment:
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - CUDA_VISIBLE_DEVICES=0,1,2,3
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids:
+                - "0"
+                - "1"
+                - "2"
+                - "3"
+              capabilities: [gpu]
+    volumes:
+      - nim_cache:/root/.cache
+      - nim_models:/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 volumes:
   kafka_data:
+  nim_cache:
+  nim_models:

@@ -57,12 +57,12 @@ class LargeLLMJudge:
     """
 
     def __init__(self):
-        # Use NVIDIA_API_KEY (can be Brev API key) - same as main LLM service
+        # Use NVIDIA_API_KEY - same as main LLM service (NVIDIA public cloud)
         self.api_key = os.getenv("NVIDIA_API_KEY", "")
-        # Use LLM_NIM_URL (defaults to api.brev.dev/v1 for 49B model) - same as main LLM service
-        self.base_url = os.getenv("LLM_NIM_URL", "https://api.brev.dev/v1")
-        # Use LLM_MODEL from .env (contains the unique 49B model identifier)
-        self.model = os.getenv("LLM_MODEL", "nvidia/llama-3.3-nemotron-super-49b-v1")
+        # Use LLM_NIM_URL - NVIDIA public cloud (integrate.api.nvidia.com)
+        self.base_url = os.getenv("LLM_NIM_URL", "https://integrate.api.nvidia.com/v1")
+        # Use LLM_MODEL from .env (49B model on NVIDIA public cloud)
+        self.model = os.getenv("LLM_MODEL", "nvidia/llama-3.3-nemotron-super-49b-v1.5")
         # Large LLM (49B) models need more time for complex evaluation prompts
         # Default: 120 seconds (2 minutes), configurable via LLAMA_70B_TIMEOUT env var
         # Note: Environment variable name kept as LLAMA_70B_TIMEOUT for backward compatibility

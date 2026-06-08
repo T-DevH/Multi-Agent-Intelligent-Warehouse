@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS document_search_metadata (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
     search_vector_id VARCHAR(100), -- Milvus vector ID
-    embedding_model VARCHAR(100), -- 'nv-embedqa-e5-v5'
+    embedding_model VARCHAR(100), -- 'llama-nemotron-embed-vl-1b-v2'
     extracted_text TEXT,
     key_entities JSONB DEFAULT '{}',
     document_summary TEXT,

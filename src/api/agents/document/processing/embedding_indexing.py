@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """
-Stage 4: Embedding & Indexing with nv-embedqa-e5-v5
+Stage 4: Embedding & Indexing with llama-nemotron-embed-vl-1b-v2 (2048-dim)
 Generates semantic embeddings and stores them in Milvus vector database.
 """
 
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 class EmbeddingIndexingService:
     """
-    Stage 4: Embedding & Indexing using nv-embedqa-e5-v5.
+    Stage 4: Embedding & Indexing using llama-nemotron-embed-vl-1b-v2 (2048-dim).
 
     Responsibilities:
     - Generate semantic embeddings for document content
@@ -58,7 +58,7 @@ class EmbeddingIndexingService:
         self.collection_name = "warehouse_documents"
         self.collection: Optional[Collection] = None
         self._connected = False
-        self.embedding_dimension = 1024  # NV-EmbedQA-E5-v5 dimension
+        self.embedding_dimension = int(os.getenv("EMBEDDING_DIMENSION", "2048"))
 
     async def initialize(self):
         """Initialize the embedding and indexing service."""
@@ -181,7 +181,7 @@ class EmbeddingIndexingService:
             return []
 
     async def _generate_embeddings(self, text_content: List[str]) -> List[List[float]]:
-        """Generate embeddings using nv-embedqa-e5-v5."""
+        """Generate embeddings using llama-nemotron-embed-vl-1b-v2."""
         try:
             if not self.nim_client:
                 logger.warning("NIM client not available, using mock embeddings")
@@ -208,7 +208,7 @@ class EmbeddingIndexingService:
         import random
 
         embeddings = []
-        dimension = 1024  # nv-embedqa-e5-v5 dimension
+        dimension = self.embedding_dimension
 
         for text in text_content:
             # Generate deterministic mock embedding based on text hash

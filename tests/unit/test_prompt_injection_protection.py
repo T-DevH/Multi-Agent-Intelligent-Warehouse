@@ -38,12 +38,12 @@ class TestPromptInjectionProtection:
         # Attempt to inject f-string template syntax
         malicious_input = "{__import__('os').system('rm -rf /')}"
         result = sanitize_prompt_input(malicious_input)
-        
+
         # Should escape braces: { becomes {{ and } becomes }}
         assert "{{" in result
         assert "}}" in result
         assert "__import__" in result  # Content should still be there, just escaped
-        
+
         # Verify it's safe to use in f-string - the result is already escaped
         # When we use it in an f-string, it will be a literal string, not evaluated
         safe_template = f"User Query: {result}"
@@ -55,11 +55,11 @@ class TestPromptInjectionProtection:
         """Test template injection with variable access attempts."""
         malicious_input = "{query.__class__.__init__.__globals__}"
         result = sanitize_prompt_input(malicious_input)
-        
+
         # Should escape all braces
         assert "{{" in result
         assert "}}" in result
-        
+
         # Verify safe usage - the result is already escaped with double braces
         # When used in f-string, it will be literal text, not evaluated
         assert result.count("{{") > 0 and result.count("}}") > 0
@@ -68,7 +68,7 @@ class TestPromptInjectionProtection:
         """Test nested brace patterns."""
         malicious_input = "{{{{{{malicious}}}}}}"
         result = sanitize_prompt_input(malicious_input)
-        
+
         # All braces should be escaped
         assert result.count("{{") >= 3
         assert result.count("}}") >= 3
@@ -77,7 +77,7 @@ class TestPromptInjectionProtection:
         """Test that control characters are removed."""
         malicious_input = "test\x00\x01\x02\n\r\t"
         result = sanitize_prompt_input(malicious_input)
-        
+
         # Control characters should be removed (including \n, \r, \t)
         assert "\x00" not in result
         assert "\x01" not in result
@@ -92,7 +92,7 @@ class TestPromptInjectionProtection:
         """Test that backticks are replaced with single quotes."""
         malicious_input = "test `code` injection"
         result = sanitize_prompt_input(malicious_input)
-        
+
         # Backticks should be replaced
         assert "`" not in result
         assert "'" in result or "code" in result
@@ -101,7 +101,7 @@ class TestPromptInjectionProtection:
         """Test that very long inputs are truncated."""
         long_input = "A" * 20000  # 20k characters
         result = sanitize_prompt_input(long_input, max_length=10000)
-        
+
         # Should be truncated
         assert len(result) <= 10000 + len("...[truncated]")
         assert "...[truncated]" in result
@@ -110,9 +110,10 @@ class TestPromptInjectionProtection:
         """Test that dicts are serialized to JSON safely."""
         input_dict = {"key": "value", "nested": {"inner": "data"}}
         result = sanitize_prompt_input(input_dict)
-        
+
         # Should be JSON string
         import json
+
         assert isinstance(result, str)
         # Should be valid JSON
         parsed = json.loads(result)
@@ -122,9 +123,10 @@ class TestPromptInjectionProtection:
         """Test that lists are serialized to JSON safely."""
         input_list = [1, 2, 3, {"nested": "value"}]
         result = sanitize_prompt_input(input_list)
-        
+
         # Should be JSON string
         import json
+
         assert isinstance(result, str)
         # Should be valid JSON
         parsed = json.loads(result)
@@ -138,8 +140,10 @@ class TestPromptInjectionProtection:
     def test_safe_format_prompt_basic(self):
         """Test safe_format_prompt with normal input."""
         template = "User Query: {query}\nIntent: {intent}"
-        result = safe_format_prompt(template, query="Show equipment", intent="equipment")
-        
+        result = safe_format_prompt(
+            template, query="Show equipment", intent="equipment"
+        )
+
         assert "Show equipment" in result
         assert "equipment" in result
 
@@ -148,7 +152,7 @@ class TestPromptInjectionProtection:
         template = "User Query: {query}"
         malicious_query = "{__import__('os').system('rm -rf /')}"
         result = safe_format_prompt(template, query=malicious_query)
-        
+
         # Should escape the braces
         assert "{{" in result
         assert "}}" in result
@@ -158,7 +162,7 @@ class TestPromptInjectionProtection:
         """Test safe_format_prompt with missing placeholder."""
         template = "User Query: {query}"
         result = safe_format_prompt(template)  # Missing query parameter
-        
+
         # Should include error message
         assert "ERROR" in result or "Missing placeholder" in result
 
@@ -166,7 +170,7 @@ class TestPromptInjectionProtection:
         """Test real-world template injection scenarios."""
         scenarios = [
             # F-string injection attempts
-            "{eval('__import__(\"os\").system(\"ls\")')}",
+            '{eval(\'__import__("os").system("ls")\')}',
             "{globals()['__builtins__']['__import__']('os').system('id')}",
             "{''.__class__.__mro__[1].__subclasses__()}",
             # Jinja2-style (should still be escaped)
@@ -178,17 +182,20 @@ class TestPromptInjectionProtection:
             "Normal text {injection} more text",
             "{first}{second}{third}",
         ]
-        
+
         for malicious_input in scenarios:
             result = sanitize_prompt_input(malicious_input)
-            
+
             # Verify braces are escaped
             assert "{{" in result or "}}" in result or malicious_input.count("{") == 0
-            
+
             # Verify it's safe to use in f-string
             safe_template = f"Query: {result}"
             # Should not contain unescaped braces that could be evaluated
-            assert safe_template.count("{") == safe_template.count("}") or "{Query:" in safe_template
+            assert (
+                safe_template.count("{") == safe_template.count("}")
+                or "{Query:" in safe_template
+            )
 
     def test_preserves_normal_text(self):
         """Test that normal text is preserved correctly."""
@@ -199,7 +206,7 @@ class TestPromptInjectionProtection:
             "How many workers are active?",
             "Equipment ID: FL-01, Zone: Zone A",
         ]
-        
+
         for normal_input in normal_inputs:
             result = sanitize_prompt_input(normal_input)
             # Normal text should be preserved (except braces if any)
@@ -210,13 +217,14 @@ class TestPromptInjectionProtection:
 
     def test_special_characters(self):
         """Test handling of special characters."""
-        special_input = "Query with: quotes 'single' and \"double\", symbols @#$%, and unicode 中文"
+        special_input = (
+            "Query with: quotes 'single' and \"double\", symbols @#$%, and unicode 中文"
+        )
         result = sanitize_prompt_input(special_input)
-        
+
         # Should preserve most characters
         assert "quotes" in result
         assert "single" in result
         assert "double" in result
         # Special symbols should be preserved
         assert "@" in result or "$" in result or "%" in result
-

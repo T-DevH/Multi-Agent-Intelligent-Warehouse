@@ -19,14 +19,26 @@ Pytest configuration and fixtures for unit tests.
 Provides shared fixtures and configuration for pytest-based tests.
 """
 
-import pytest
+from __future__ import annotations
+
 import asyncio
 import os
+import sys
 from pathlib import Path
 from typing import Generator
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).parent.parent
+# Project root must precede site-packages so ``from tests.unit...`` resolves here,
+# not a third-party ``tests`` distribution (e.g. transitive test helpers).
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_root = str(PROJECT_ROOT)
+if sys.path[0] != _root:
+    try:
+        sys.path.remove(_root)
+    except ValueError:
+        pass
+    sys.path.insert(0, _root)
+
+import pytest
 
 
 @pytest.fixture(scope="session")
@@ -39,7 +51,7 @@ def project_root() -> Path:
 def api_base_url() -> str:
     """
     Get API base URL from environment.
-    
+
     Security: HTTP protocol is acceptable for localhost in test environments.
     For production deployments, HTTPS must be used to encrypt API communications.
     """
@@ -76,7 +88,7 @@ def guardrails_timeout() -> int:
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     """
     Create event loop for async tests.
-    
+
     This fixture ensures that async tests have a proper event loop.
     """
     loop = asyncio.get_event_loop_policy().new_event_loop()
@@ -88,6 +100,7 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 def test_session_id() -> str:
     """Generate a unique test session ID."""
     from datetime import datetime
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     return f"test_session_{timestamp}"
 
@@ -110,21 +123,6 @@ def test_data_dir(project_root: Path) -> Path:
 
 
 @pytest.fixture(scope="function", autouse=True)
-def setup_test_environment(project_root: Path):
-    """
-    Set up test environment before each test.
-    
-    This fixture automatically runs before each test to ensure
-    the project root is in the Python path.
-    """
-    import sys
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+def setup_test_environment() -> Generator[None, None, None]:
+    """Reserved for per-test environment hooks (project root is set at conftest import)."""
     yield
-    # Cleanup if needed
-    pass
-
-
-
-
-

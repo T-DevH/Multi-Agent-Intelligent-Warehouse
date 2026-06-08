@@ -617,7 +617,7 @@ const Documentation: React.FC = () => {
                     Stage 4: Embedding & Indexing
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 2 }}>
-                    <strong>Model:</strong> nv-embedqa-e5-v5 (NVIDIA NeMo)
+                    <strong>Model:</strong> llama-nemotron-embed-vl-1b-v2 (NVIDIA NeMo)
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Vector embeddings generation for semantic search and intelligent document indexing with GPU acceleration.

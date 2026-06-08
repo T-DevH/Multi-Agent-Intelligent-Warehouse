@@ -1,46 +1,64 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import App from './App';
+import { nvidiaTheme } from './theme/nvidiaTheme';
 
-// Mock the API service
 jest.mock('./services/api', () => ({
-  api: {
-    get: jest.fn(),
+  __esModule: true,
+  default: {
+    get: jest.fn().mockResolvedValue({ data: null }),
     post: jest.fn(),
     put: jest.fn(),
     delete: jest.fn(),
   },
 }));
 
-// Mock react-router-dom
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-  useLocation: () => ({ pathname: '/' }),
-}));
+function renderWithProviders(ui: React.ReactElement, initialEntries = ['/login']) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+    },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={nvidiaTheme}>
+        <CssBaseline />
+        <MemoryRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+          initialEntries={initialEntries}
+        >
+          {ui}
+        </MemoryRouter>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
 
 describe('App Component', () => {
   test('renders without crashing', () => {
-    render(<App />);
-    // Basic test to ensure app renders
+    renderWithProviders(<App />);
     expect(document.body).toBeInTheDocument();
   });
 
   test('renders main content', () => {
-    render(<App />);
-    // Check if the app container exists
+    renderWithProviders(<App />);
     const appElement = document.querySelector('[data-testid="app"]') || document.body;
     expect(appElement).toBeInTheDocument();
   });
 
   test('handles routing', () => {
-    render(<App />);
-    // Basic routing test
+    renderWithProviders(<App />, ['/login']);
     expect(window.location.pathname).toBeDefined();
   });
 });
 
-// Additional basic tests
 describe('Basic Functionality', () => {
   test('basic math operations', () => {
     expect(2 + 2).toBe(4);

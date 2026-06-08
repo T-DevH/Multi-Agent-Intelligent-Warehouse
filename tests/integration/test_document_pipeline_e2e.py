@@ -51,7 +51,8 @@ async def test_document_pipeline():
             TEST_FILE.parent.mkdir(parents=True, exist_ok=True)
             # Create a simple test image
             from PIL import Image
-            img = Image.new('RGB', (800, 600), color='white')
+
+            img = Image.new("RGB", (800, 600), color="white")
             img.save(TEST_FILE)
             logger.info(f"Created test file: {TEST_FILE}")
 
@@ -184,4 +185,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
